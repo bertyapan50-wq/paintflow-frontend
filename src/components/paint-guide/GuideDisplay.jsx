@@ -1,4 +1,5 @@
 // src/components/paint-guide/GuideDisplay.jsx — Atelier Noir + Dodo Payment + Subscription
+import API_URL from "../../lib/api";
 import PaintingTimelapse from "./PaintingTimelapse";
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
