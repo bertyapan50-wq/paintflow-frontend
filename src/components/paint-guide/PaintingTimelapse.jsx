@@ -26,18 +26,18 @@ const CAPTION_DURATION_MS = 5500;
 // ═══════════════════════════════════════════════════════════
 const SKILL_CONFIG = {
   beginner: {
-  strokeTypes: ["grisaille", "wetOnWet"],
+    strokeTypes: ["grisaille", "wetOnWet"],
     // 4 phases only — no grisaille, no pixel/final
     phaseIds:    ["grid", "sketch", "imprimatura", "wetOnWet"],
-    label:       "Baguhan 🌱",
-    titleSub:    "Beginner Oil Painting • 4 Hakbang",
+    label:       "Beginner 🌱",
+    titleSub:    "Beginner Oil Painting • 4 Steps",
     useAdvancedCaptions: false,
   },
   intermediate: {
     strokeTypes: ["grisaille", "wetOnWet", "glaze", "scumble", "detail", "pixel"],
     phaseIds:    ["grid", "sketch", "imprimatura", "grisaille", "wetOnWet", "glaze", "scumble", "detail", "pixel"],
-    label:       "Katamtaman 🎨",
-    titleSub:    "Old Master Technique • 9 Hakbang",
+    label:       "Intermediate 🎨",
+    titleSub:    "Old Master Technique • 9 Steps",
     useAdvancedCaptions: false,
   },
   advanced: {
@@ -100,7 +100,7 @@ const COLOR_MIXES = {
 };
 
 // ═══════════════════════════════════════════════════════════
-//  ADVANCED COLOR MIXES — Technical, mas detalyado
+//  ADVANCED COLOR MIXES — Technical, more detailed
 // ═══════════════════════════════════════════════════════════
 const ADVANCED_COLOR_MIXES = {
   grid: null,
@@ -285,56 +285,56 @@ const PHASE_INDEX = {
 // ═══════════════════════════════════════════════════════════
 const TECHNIQUE_STEPS = {
   grid: [
-    "Hatiin ang papel sa 6×6 grid gamit ang ruler at lapis.",
-    "Gawin din ang parehong grid sa reference photo.",
-    "Ang bawat kahon sa reference = isang kahon sa iyong papel.",
+    "Divide your paper into a 6×6 grid using a ruler and pencil.",
+    "Draw the same grid on your reference photo.",
+    "Each cell in the reference matches one cell on your paper.",
   ],
   sketch: [
-    "Gamitin ang HB o 2B na lapis — magaan lang ang hawak.",
-    "Tingnan ang isang kahon sa reference, iguhit sa katumbas na kahon.",
-    "Sundan ang mga edges/gilid ng mga hugis, hindi ang detalye.",
-    "Burahin at ulitin hanggang tama ang proportions.",
+    "Use an HB or 2B pencil — keep a light touch.",
+    "Look at one cell in the reference, then draw it in the matching cell.",
+    "Follow the edges and outlines of shapes, not the details.",
+    "Erase and redo until the proportions feel right.",
   ],
   imprimatura: [
-    "I-dilute ang Burnt Sienna sa turpentine — manipis na wash.",
-    "Pahiran nang pantay gamit ang malaking flat brush.",
-    "Hayaan itong matuyo ng 15–30 minuto bago magpatuloy.",
+    "Dilute Burnt Sienna in turpentine — aim for a thin wash.",
+    "Apply evenly across the canvas using a large flat brush.",
+    "Let it dry for 15–30 minutes before moving on.",
   ],
   grisaille: [
-    "I-mix ang Burnt Umber + Titanium White para sa mid-tone.",
-    "Dagdag pang Ivory Black para sa pinakamadilim na bahagi.",
-    "Mag-paint mula sa pinakamaliwanag hanggang pinakamadilim.",
-    "Wag lagyan ng kulay — grey/sepia tones lang ngayon.",
+    "Mix Burnt Umber + Titanium White for your mid-tone.",
+    "Add Ivory Black for the darkest areas.",
+    "Paint from lightest to darkest values.",
+    "No color yet — stay in grey and sepia tones for now.",
   ],
   wetOnWet: [
-    "Siguraduhing basa pa ang nakaraang layer.",
-    "Mag-apply ng kulay nang direkta sa basa na surface.",
-    "Hayaang mag-blend ang mga kulay — huwag over-mix.",
-    "Gumamit ng malambot na brush para sa maayos na blending.",
+    "Make sure the previous layer is still wet.",
+    "Apply color directly onto the wet surface.",
+    "Let the colors blend naturally — avoid over-mixing.",
+    "Use a soft brush for smooth, fluid blending.",
   ],
   glaze: [
-    "Siguraduhing tuyo na ang nakaraang layer.",
-    "I-mix ang kulay sa linseed oil — 1 bahagi kulay, 4 bahagi oil.",
-    "Pahirin nang manipis at pantay gamit ang soft brush.",
-    "Hayaang matuyo bago mag-apply ng bagong glaze.",
+    "Make sure the previous layer is fully dry.",
+    "Mix your color with linseed oil — 1 part pigment, 4 parts oil.",
+    "Apply thin and even with a soft brush.",
+    "Let each glaze dry completely before adding another.",
   ],
   scumble: [
-    "Kumuha ng kaunting kulay sa brush, punasan sa tela.",
-    "Ang brush ay dapat na halos dry — konting paint lang.",
-    "Magaan at mabilis na strokes — huwag pindutin ang brush.",
-    "Gamitin ito sa mga highlight at light areas.",
+    "Load a small amount of paint onto the brush, then wipe most of it off on a cloth.",
+    "The brush should be almost dry — very little paint.",
+    "Light, quick strokes — don't press the brush down.",
+    "Use this technique on highlights and light areas.",
   ],
   detail: [
-    "Gumamit ng maliit na brush o palette knife para sa impasto.",
-    "Mag-apply ng makapal na paint sa pinakaliwanag na bahagi.",
-    "Isang confident na stroke — huwag ulit-ulitin.",
-    "Hayaang makita ang texture ng brush stroke.",
+    "Use a small brush or palette knife for impasto.",
+    "Apply thick paint to the brightest areas.",
+    "One confident stroke — don't go back over it.",
+    "Let the texture of the brushstroke show.",
   ],
   pixel: [
-    "Lumayo sa painting — tingnan mula sa 1–2 metro.",
-    "Ikumpara sa reference — ano ang kulang o maling lugar?",
-    "Maliliit na adjustments lang — huwag galawin ang maganda na.",
-    "Kapag maganda mula sa malayo — tapos na!",
+    "Step back from the painting — view it from 1–2 meters away.",
+    "Compare to your reference — what's missing or off?",
+    "Small adjustments only — don't touch what's already working.",
+    "When it looks great from a distance — you're done!",
   ],
 };
 
@@ -642,7 +642,7 @@ function drawGridFrame(ctx, img, width, height, animProgress) {
   ctx.fillStyle = "rgba(255,255,255,0.85)";
   ctx.fillText("📷 Reference Photo", refX + halfW / 2, topY + imgH + 6);
   ctx.fillStyle = "rgba(255,220,80,0.90)";
-  ctx.fillText("🎨 Iyong Canvas", canvX + halfW / 2, topY + imgH + 6);
+  ctx.fillText("🎨 Your Canvas", canvX + halfW / 2, topY + imgH + 6);
   const COLS = 6, ROWS = 6;
   const totalLines  = COLS - 1 + ROWS - 1;
   const visibleLines = Math.floor(animProgress * totalLines);
@@ -718,7 +718,7 @@ function drawTitleCard(ctx, img, width, height, title, medium, skillLabel, title
   const t3sz = Math.max(8, Math.round(width * 0.025));
   ctx.font = `${t3sz}px sans-serif`;
   ctx.fillStyle = "rgba(255,255,255,0.55)";
-  ctx.fillText(`Antas: ${skillLabel}`, width/2, ty+th+t1sz+t2sz+28);
+  ctx.fillText(`Level: ${skillLabel}`, width/2, ty+th+t1sz+t2sz+28);
   ctx.textAlign = "left";
   ctx.restore();
 }
@@ -841,12 +841,12 @@ export default function PaintingTimelapse({ guide, imageUrl, skillLevel = "inter
         dCtx.clearRect(0, 0, width, height);
         dCtx.drawImage(paintCanvas, 0, 0);
         if (brushX !== null) {
-  if (toolType === "pencil") {
-    drawPencil(dCtx, brushX, brushY, (brushAngle ?? 0) + Math.PI * 0.82, brushSize ?? 8);
-  } else {
-    drawPaintbrush(dCtx, brushX, brushY, (brushAngle ?? 0) + Math.PI * 0.82, brushSize ?? 8, brushColor);
-  }
-}
+          if (toolType === "pencil") {
+            drawPencil(dCtx, brushX, brushY, (brushAngle ?? 0) + Math.PI * 0.82, brushSize ?? 8);
+          } else {
+            drawPaintbrush(dCtx, brushX, brushY, (brushAngle ?? 0) + Math.PI * 0.82, brushSize ?? 8, brushColor);
+          }
+        }
         drawOverlay(dCtx, width, height, ph, pct);
       };
 
@@ -884,17 +884,17 @@ export default function PaintingTimelapse({ guide, imageUrl, skillLevel = "inter
         const end    = Math.min(i + SK_BATCH, skTotal);
         for (let j = i; j < end; j++) paintSketchStroke(paintCtx, sketchStrokes[j]);
         const lastSk = sketchStrokes[end - 1];
-const skPct  = Math.round((end / skTotal) * 100);
-const skX = lastSk.type === "contour"
-  ? lastSk.points[lastSk.points.length - 1]?.x
-  : lastSk.x;
-const skY = lastSk.type === "contour"
-  ? lastSk.points[lastSk.points.length - 1]?.y
-  : lastSk.y;
-const skAngle = lastSk.type === "contour" ? 0 : (lastSk.angle ?? 0);
-renderFrame(PHASES[1], skPct, skX, skY, skAngle, 10, { r:40, g:28, b:12 },
-  skillLevel === "beginner" ? "pencil" : "brush"
-);
+        const skPct  = Math.round((end / skTotal) * 100);
+        const skX = lastSk.type === "contour"
+          ? lastSk.points[lastSk.points.length - 1]?.x
+          : lastSk.x;
+        const skY = lastSk.type === "contour"
+          ? lastSk.points[lastSk.points.length - 1]?.y
+          : lastSk.y;
+        const skAngle = lastSk.type === "contour" ? 0 : (lastSk.angle ?? 0);
+        renderFrame(PHASES[1], skPct, skX, skY, skAngle, 10, { r:40, g:28, b:12 },
+          skillLevel === "beginner" ? "pencil" : "brush"
+        );
         setProgress(skPct);
         if (skPct % 10 === 0) await new Promise(r => setTimeout(r, 120));
         else await new Promise(r => setTimeout(r, 0));
@@ -937,7 +937,6 @@ renderFrame(PHASES[1], skPct, skX, skY, skAngle, 10, { r:40, g:28, b:12 },
       }
       renderFrame(PHASES[2], 100, null, null, 0, 0, null);
       await new Promise(r => setTimeout(r, 3000));
-    
 
       // ── 5. PAINT STROKES — filtered by skill level ────────
       const rawStrokes   = generateStrokes(width, height);
@@ -956,7 +955,6 @@ renderFrame(PHASES[1], skPct, skX, skY, skAngle, 10, { r:40, g:28, b:12 },
           groupStrokesByColor(strokesByType[type] ?? [], _pixels, width, height)
         );
 
-      // Beginner: stop after wetOnWet — no final/pixel phase
       const total     = strokes.length;
       let lastPhId    = "";
       phaseStartMs    = Date.now();
@@ -1020,8 +1018,8 @@ renderFrame(PHASES[1], skPct, skX, skY, skAngle, 10, { r:40, g:28, b:12 },
       dCtx.textAlign = "left";
       dCtx.restore();
       await new Promise(r => setTimeout(r, 10000));
-flushSpeech();
-recorder.stop();
+      flushSpeech();
+      recorder.stop();
       await recDone;
 
     } catch (err) {
@@ -1090,7 +1088,7 @@ recorder.stop();
         <div className="w-full rounded-xl border px-4 py-3 space-y-2"
              style={{ borderColor: phase.color + "40", backgroundColor: phase.color + "12" }}>
           <p className="text-xs font-bold uppercase tracking-wide" style={{ color: phase.color }}>
-            🖌️ Paano Gawin — {phase.label}
+            🖌️ How To — {phase.label}
           </p>
           <ol className="space-y-1.5 list-none">
             {TECHNIQUE_STEPS[phase.id].map((step, i) => (
@@ -1160,7 +1158,7 @@ recorder.stop();
                      ${sc.btn} text-white font-semibold
                      px-5 py-3 rounded-2xl shadow-md transition-all active:scale-95`}
         >
-          🎬 I-generate ang {cfg.label} Oil Painting Tutorial
+          🎬 Generate {cfg.label} Oil Painting Tutorial
         </button>
       )}
 
@@ -1188,7 +1186,7 @@ recorder.stop();
             </div>
           ) : (
             <p className="text-sm font-body text-orange-400 animate-pulse text-center">
-              🖌️ Inihahanda ang canvas…
+              🖌️ Preparing the canvas…
             </p>
           )}
 
@@ -1224,13 +1222,13 @@ recorder.stop();
               className="flex-1 flex items-center justify-center gap-1.5 bg-green-600
                          hover:bg-green-700 text-white font-semibold px-4 py-2.5
                          rounded-xl shadow transition-all active:scale-95 text-sm">
-              ⬇️ I-download
+              ⬇️ Download
             </button>
             <button onClick={reset}
               className="flex items-center gap-1.5 bg-gray-200 hover:bg-gray-300
                          text-gray-700 font-semibold px-4 py-2.5 rounded-xl
                          shadow transition-all active:scale-95 text-sm">
-              🔄 Ulit
+              🔄 Try Again
             </button>
           </div>
         </div>
@@ -1239,7 +1237,7 @@ recorder.stop();
       {/* ERROR */}
       {status === "error" && (
         <div className="text-center space-y-2">
-          <p className="text-sm text-red-500">❌ May error. Subukan muli.</p>
+          <p className="text-sm text-red-500">❌ Something went wrong. Please try again.</p>
           <button onClick={reset} className="text-sm text-orange-500 underline">Try again</button>
         </div>
       )}
