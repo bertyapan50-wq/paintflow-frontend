@@ -20,9 +20,9 @@ const C = {
 };
 
 const SKILL_BADGE = {
-  beginner:     { label: "Baguhan",     emoji: "🌱", accent: C.green  },
-  intermediate: { label: "Katamtaman", emoji: "🎨", accent: C.sienna },
-  advanced:     { label: "Advanced",    emoji: "🔥", accent: C.red    },
+  beginner:     { label: "Beginner",     emoji: "🌱", accent: C.green  },
+  intermediate: { label: "Intermediate", emoji: "🎨", accent: C.sienna },
+  advanced:     { label: "Advanced",     emoji: "🔥", accent: C.red    },
 };
 
 const PRICE = {
@@ -118,7 +118,7 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
         clearInterval(pollIntervalRef.current);
         setPaymentState((prev) => {
           if (prev === "waiting") {
-            setPaymentError("Nag-timeout ang payment. Subukan ulit.");
+            setPaymentError("Payment timed out. Please try again.");
             return "failed";
           }
           return prev;
@@ -166,7 +166,7 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
     } catch (err) {
       console.error("❌ Payment error:", err);
       setPaymentState("failed");
-      setPaymentError(err.message || "May error sa payment. Subukan ulit.");
+      setPaymentError(err.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -208,7 +208,7 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
     } catch (err) {
       console.error("❌ Subscription error:", err);
       setPaymentState("failed");
-      setPaymentError(err.message || "May error sa subscription. Subukan ulit.");
+      setPaymentError(err.message || "Something went wrong. Please try again.");
     }
   };
 
@@ -326,7 +326,7 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
                 }}
               >
                 <Palette size={14} color={C.sienna} />
-                Mga kakailanganin ({guide.materials.length})
+                Materials needed ({guide.materials.length})
                 {showAllMaterials
                   ? <ChevronUp size={14} color={C.muted} />
                   : <ChevronDown size={14} color={C.muted} />}
@@ -406,11 +406,11 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
                     fontSize: 20, fontWeight: 700, color: C.cream,
                     margin: "0 0 5px", letterSpacing: "-0.01em",
                   }}>
-                    Gusto mo bang gumawa ng Tutorial Video?
+                    Want to generate a Tutorial Video?
                   </h3>
                   <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.6, margin: "0 0 12px" }}>
-                    Ang video ay nire-render per step gamit ang AI — maaaring tumagal ng ilang minuto
-                    depende sa complexity ng larawan at bilang ng steps.
+                    The video is rendered step by step using AI — this may take a few minutes
+                    depending on the complexity of your image and the number of steps.
                   </p>
 
                   {/* Pricing options */}
@@ -470,7 +470,7 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
                   }}
                 >
                   <CreditCard size={14} color="#0c0907" strokeWidth={2.5} />
-                  Bayad — {price}
+                  Pay — {price}
                 </motion.button>
 
                 {/* Subscription button */}
@@ -505,7 +505,7 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
                   onMouseLeave={e => e.currentTarget.style.color = C.muted}
                 >
                   <RotateCcw size={13} />
-                  Hindi na, mag-upload ng bago
+                  No thanks, upload a new photo
                 </button>
               </div>
 
@@ -515,7 +515,7 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
                 marginTop: 12, paddingTop: 12,
                 borderTop: `1px solid ${C.border}`,
               }}>
-                💡 <strong style={{ color: `${C.muted}cc` }}>Subscription</strong> — unlimited video generation para sa lahat ng tutorials mo. Cancel anytime.
+                💡 <strong style={{ color: `${C.muted}cc` }}>Subscription</strong> — unlimited video generation for all your tutorials. Cancel anytime.
               </p>
             </Card>
           </motion.div>
@@ -568,10 +568,10 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
                       margin: "0 0 6px", letterSpacing: "-0.01em",
                     }}
                   >
-                    Inihahanda ang checkout…
+                    Preparing checkout…
                   </motion.p>
                   <p style={{ fontSize: 12, color: C.muted, margin: 0 }}>
-                    Sandali lang, kine-connect sa Dodo Payments
+                    Connecting to Dodo Payments, just a moment…
                   </p>
                 </div>
                 <Waveform />
@@ -617,15 +617,15 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
                     margin: "0 0 8px", letterSpacing: "-0.01em",
                   }}>
                     {paymentMode === "subscription"
-                      ? "Naghihintay sa subscription…"
-                      : "Naghihintay sa payment…"
+                      ? "Waiting for subscription…"
+                      : "Waiting for payment…"
                     }
                   </p>
                   <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.6, margin: "0 0 4px" }}>
-                    Nakabukás ang Dodo checkout sa bagong tab.
+                    Dodo checkout opened in a new tab.
                   </p>
                   <p style={{ fontSize: 12, color: `${C.muted}88`, margin: 0 }}>
-                    Awtomatikong magpapatuloy pagkatapos mabayaran.
+                    This page will continue automatically once payment is complete.
                   </p>
                 </div>
 
@@ -656,7 +656,7 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
                   onMouseLeave={e => e.currentTarget.style.color = C.muted}
                 >
                   <XCircle size={13} />
-                  I-cancel
+                  Cancel
                 </button>
               </div>
             </Card>
@@ -687,10 +687,10 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
                     fontSize: 20, fontWeight: 700, color: C.cream,
                     margin: "0 0 6px",
                   }}>
-                    Hindi natuloy ang payment
+                    Payment unsuccessful
                   </p>
                   <p style={{ fontSize: 12, color: C.muted, margin: 0 }}>
-                    {paymentError || "May error sa payment. Subukan ulit."}
+                    {paymentError || "Something went wrong. Please try again."}
                   </p>
                 </div>
                 <div style={{ display: "flex", gap: 10 }}>
@@ -708,7 +708,7 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
                     }}
                   >
                     <RotateCcw size={13} color="#0c0907" />
-                    Subukan ulit
+                    Try again
                   </motion.button>
                   <button
                     onClick={onReset}
@@ -720,7 +720,7 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
                       fontFamily: "'DM Sans', sans-serif",
                     }}
                   >
-                    Mag-upload ng bago
+                    Upload a new photo
                   </button>
                 </div>
               </div>
@@ -749,8 +749,8 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
               <CheckCircle size={16} color={C.green} />
               <span style={{ fontSize: 12, color: C.green, fontWeight: 600 }}>
                 {paymentMode === "subscription"
-                  ? "Subscription active — sine-generate na ang iyong video! 🎉"
-                  : "Payment confirmed — sine-generate na ang iyong video!"
+                  ? "Subscription active — generating your video! 🎉"
+                  : "Payment confirmed — generating your video!"
                 }
               </span>
             </motion.div>
@@ -789,7 +789,7 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
             }}
           >
             <RotateCcw size={14} />
-            Bagong Larawan
+            New Photo
           </button>
         </div>
       )}

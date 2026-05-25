@@ -61,9 +61,9 @@ const Divider = ({ style }) => (
 
 /* ── Skill level pill configs ── */
 const SKILL_BADGES = {
-  beginner:     { label: "Baguhan",     emoji: "🌱", accent: "#5fa86d" },
-  intermediate: { label: "Katamtaman", emoji: "🎨", accent: C.sienna },
-  advanced:     { label: "Advanced",    emoji: "🔥", accent: "#c84a3a" },
+  beginner:     { label: "Beginner",     emoji: "🌱", accent: "#5fa86d" },
+  intermediate: { label: "Intermediate", emoji: "🎨", accent: C.sienna },
+  advanced:     { label: "Advanced",     emoji: "🔥", accent: "#c84a3a" },
 };
 
 export default function Home() {
@@ -124,7 +124,7 @@ export default function Home() {
         dominant_colors:     result.dominant_colors     || [],
         overview:            result.overview            || "",
         medium:              "oil_paint",
-        difficulty:          result.difficulty          || "Katamtaman",
+        difficulty:          result.difficulty          || "Intermediate",
         estimated_time:      result.estimated_time      || "",
         materials:           result.materials           || [],
         steps:               normalizedSteps,
@@ -239,7 +239,7 @@ export default function Home() {
                   onMouseLeave={e => e.currentTarget.style.color = C.muted}
                 >
                   <RotateCcw size={11} />
-                  Bago
+                  New
                 </button>
               )}
             </div>
@@ -329,7 +329,7 @@ export default function Home() {
                     style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}
                   >
                     {[
-                      { icon: "🧠", text: "Claude AI Analysis" },
+                      { icon: "🧠", text: "AI Analysis" },
                       { icon: "🎙️", text: "Voice Narration" },
                       { icon: "🖼️", text: "Image Transformation" },
                       { icon: "🔥", text: "Advanced Level" },
@@ -356,8 +356,6 @@ export default function Home() {
                 {/* Gold divider */}
                 <Divider style={{ marginBottom: 40 }} />
 
-                
-
                 {/* Image Uploader */}
                 <motion.div
                   initial={{ opacity: 0, y: 16 }}
@@ -382,7 +380,7 @@ export default function Home() {
                     letterSpacing: "0.04em",
                   }}
                 >
-                  Pinakamainam: malinaw na litrato, kahit anong paksa 🎨
+                  Best results: a clear photo of any subject 🎨
                 </motion.p>
               </motion.div>
             )}
@@ -438,7 +436,7 @@ export default function Home() {
               <span style={{ fontSize: 12, color: C.muted, fontWeight: 500 }}>PaintFlow AI</span>
             </div>
             <p style={{ fontSize: 11, color: `${C.muted}88`, letterSpacing: "0.04em" }}>
-              Powered by Claude · Learn to paint anything
+              Powered by AI · Learn to paint anything
             </p>
           </div>
         </footer>

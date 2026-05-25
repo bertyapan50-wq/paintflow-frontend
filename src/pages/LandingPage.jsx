@@ -39,32 +39,32 @@ const fadeIn = (delay = 0) => ({
 });
 
 const OIL_TECHNIQUES = [
-  { icon: "🖌️", title: "Alla Prima", subtitle: "Wet-on-wet painting", desc: "Kumpletuhin ang buong painting sa iisang session habang basa pa ang pintura.", accent: "#c8793a" },
-  { icon: "🔲", title: "Glazing", subtitle: "Transparent layers", desc: "Mag-apply ng manipis na transparent na kulay para sa depth at luminosity.", accent: "#7a9ab5" },
-  { icon: "🎭", title: "Impasto", subtitle: "Thick texture strokes", desc: "Gumamit ng makapal na pintura para lumikha ng tekstura at dramatic na brush strokes.", accent: "#c8793a" },
-  { icon: "🌫️", title: "Sfumato", subtitle: "Soft blending", desc: "Gawing malambot ang mga gilid at transisyon ng kulay para sa realistic na hitsura.", accent: "#7a9ab5" },
+  { icon: "🖌️", title: "Alla Prima", subtitle: "Wet-on-wet painting", desc: "Complete the entire painting in a single session while the paint is still wet — bold, immediate, and expressive.", accent: "#c8793a" },
+  { icon: "🔲", title: "Glazing", subtitle: "Transparent layers", desc: "Apply thin, transparent layers of color to build depth, luminosity, and rich optical complexity.", accent: "#7a9ab5" },
+  { icon: "🎭", title: "Impasto", subtitle: "Thick texture strokes", desc: "Work with heavily loaded paint to create dramatic texture, physical dimension, and confident brushwork.", accent: "#c8793a" },
+  { icon: "🌫️", title: "Sfumato", subtitle: "Soft blending", desc: "Gently soften edges and color transitions to achieve a hazy, atmospheric realism — the hallmark of the Old Masters.", accent: "#7a9ab5" },
 ];
 
 const FEATURES = [
-  { icon: <Sparkles className="w-4 h-4" />, title: "AI Analysis", desc: "Sinusuri ng AI ang iyong reference photo para ma-identify ang subject, kulay, at composisyon — specific sa oil painting technique.", accent: "#c8793a" },
-  { icon: <Film className="w-4 h-4" />, title: "Narrated Tutorial", desc: "Bawat hakbang ay may kasamang boses na nagtuturo — para parang may tunay na oil painting instructor ka.", accent: "#7a9ab5" },
-  { icon: <Layers className="w-4 h-4" />, title: "Layer-by-Layer", desc: "Mula sa toning the canvas hanggang final highlights — lahat ng oil painting layers ay naka-breakdown ng malinaw.", accent: "#c8793a" },
-  { icon: <Palette className="w-4 h-4" />, title: "Color Mixing Guide", desc: "Alamin kung paano i-mix ang mga kulay gamit ang oil paints — mula sa basic primaries hanggang complex mixes.", accent: "#7a9ab5" },
-  { icon: <Eye className="w-4 h-4" />, title: "Technique Preview", desc: "Makita kung paano mag-mumukhang oil painting ang iyong photo — bago ka pa man magbukas ng pintura.", accent: "#c8793a" },
-  { icon: <BookOpen className="w-4 h-4" />, title: "Advanced Level", desc: "Master-level Old Master technique — 10-step classical approach with exact pigment names, mixing ratios, and drying times.", accent: "#7a9ab5" },
+  { icon: <Sparkles className="w-4 h-4" />, title: "AI Analysis", desc: "The AI analyzes your reference photo to identify subject, color palette, and composition — then tailors every step to oil painting technique.", accent: "#c8793a" },
+  { icon: <Film className="w-4 h-4" />, title: "Narrated Tutorial", desc: "Every step comes with a voice instructor guiding you through — like having a real oil painting teacher in the room.", accent: "#7a9ab5" },
+  { icon: <Layers className="w-4 h-4" />, title: "Layer-by-Layer", desc: "From toning the canvas to final highlights — every oil painting layer is broken down clearly so nothing gets skipped.", accent: "#c8793a" },
+  { icon: <Palette className="w-4 h-4" />, title: "Color Mixing Guide", desc: "Learn exactly how to mix colors in oil paint — from basic primaries to complex, nuanced flesh tones and neutrals.", accent: "#7a9ab5" },
+  { icon: <Eye className="w-4 h-4" />, title: "Technique Preview", desc: "See how your photo will look as an oil painting — before you open a single tube of paint.", accent: "#c8793a" },
+  { icon: <BookOpen className="w-4 h-4" />, title: "Advanced Level", desc: "Master-level Old Master technique — a 10-step classical approach with exact pigment names, mixing ratios, and drying times.", accent: "#7a9ab5" },
 ];
 
 const HOW_STEPS = [
-  { n: "I",   icon: "📸", title: "Mag-upload ng photo",      desc: "Kahit anong larawan — hayop, tanawin, portrait, still life." },
-  { n: "II",  icon: "🔥", title: "Advanced AI Tutorial",     desc: "Master-level oil painting technique — classical Old Master approach." },
-  { n: "III", icon: "🧠", title: "I-generate ang guide",     desc: "Ang AI ay gagawa ng buong narrated oil painting tutorial para sa iyo." },
-  { n: "IV",  icon: "🖌️", title: "Magsimulang mag-paint!", desc: "Sundan ang bawat hakbang — mula canvas prep hanggang final varnish." },
+  { n: "I",   icon: "📸", title: "Upload a photo",           desc: "Any subject works — animals, landscapes, portraits, still life." },
+  { n: "II",  icon: "🔥", title: "Advanced AI Tutorial",     desc: "Master-level oil painting technique — a full classical Old Master approach." },
+  { n: "III", icon: "🧠", title: "Generate your guide",      desc: "The AI builds a complete narrated oil painting tutorial just for you." },
+  { n: "IV",  icon: "🖌️", title: "Start painting!",         desc: "Follow each step — from canvas prep and imprimatura all the way to final varnish." },
 ];
 
 const TESTIMONIALS = [
-  { name: "Maria Santos", role: "Hobbyist Painter", avatar: "🧑‍🎨", quote: "Hindi ako makapaniwala — dati hindi ko alam kung saan magsisimula sa oil painting, ngayon natapos ko na ang aking unang portrait!" },
-  { name: "Joven Reyes", role: "Art Student", avatar: "👨‍🎓", quote: "Ang color mixing guide ay sobrang helpful. Hindi ko na kailangang hulaan kung paano i-mix ang flesh tones." },
-  { name: "Celine Lim", role: "Creative Professional", avatar: "👩‍💻", quote: "Grabe ang kalidad ng AI analysis. Alam niya kung anong technique ang angkop sa bawat subject na i-o-oil paint." },
+  { name: "Maria Santos", role: "Hobbyist Painter", avatar: "🧑‍🎨", quote: "I couldn't believe it — I had no idea where to start with oil painting, and now I've finished my first portrait!" },
+  { name: "Joven Reyes", role: "Art Student", avatar: "👨‍🎓", quote: "The color mixing guide is incredibly helpful. I no longer have to guess how to mix flesh tones." },
+  { name: "Celine Lim", role: "Creative Professional", avatar: "👩‍💻", quote: "The AI analysis is seriously impressive. It knows exactly which technique suits each subject." },
 ];
 
 const SWATCHES = ["#c8793a", "#e8b86d", "#8b4513", "#7a9ab5", "#4a6741", "#2c1810"];
@@ -154,7 +154,7 @@ export default function LandingPage({ onGetStarted }) {
             <button onClick={onGetStarted}
               className="ml-4 md:ml-6 flex items-center gap-1.5 px-4 py-2 rounded-full text-white text-xs font-semibold transition-all"
               style={{ background: "linear-gradient(135deg, #c8793a, #a05a28)", boxShadow: "0 0 20px rgba(200,121,58,0.25)" }}>
-              Subukan <ArrowRight className="w-3.5 h-3.5" />
+              Try it free <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </motion.header>
@@ -180,8 +180,8 @@ export default function LandingPage({ onGetStarted }) {
             </motion.h2>
 
             <motion.p {...fadeUp(0.28)} className="text-base md:text-lg max-w-xl mx-auto leading-relaxed" style={{ color: "#8a7660" }}>
-              I-upload ang kahit anong reference photo at ang aming AI instructor ay gagawa ng buong
-              narrated <span style={{ color: "#c8793a" }}>oil painting tutorial</span>, hakbang-hakbang.
+              Upload any reference photo and our AI instructor will generate a complete
+              narrated <span style={{ color: "#c8793a" }}>oil painting tutorial</span>, step by step.
             </motion.p>
 
             <motion.div {...fadeIn(0.32)} className="flex justify-center"><PaintSwatches /></motion.div>
@@ -192,17 +192,17 @@ export default function LandingPage({ onGetStarted }) {
                 style={{ background: "linear-gradient(135deg, #c8793a, #a05a28)", boxShadow: "0 0 40px rgba(200,121,58,0.30)" }}
                 onMouseEnter={e => e.currentTarget.style.boxShadow = "0 0 60px rgba(200,121,58,0.50)"}
                 onMouseLeave={e => e.currentTarget.style.boxShadow = "0 0 40px rgba(200,121,58,0.30)"}>
-                Simulan ang Tutorial
+                Start Your Tutorial
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
               <a href="#how-it-works"
                 className="flex items-center gap-2 px-6 py-4 rounded-full text-sm font-medium transition-all"
                 style={{ border: "1px solid rgba(200,121,58,0.2)", background: "rgba(200,121,58,0.05)", color: "#8a7660" }}>
-                Paano ito gumagana?
+                How does it work?
               </a>
             </motion.div>
 
-            {/* ── Feature pills — Advanced only ── */}
+            {/* ── Feature pills ── */}
             <motion.div {...fadeIn(0.5)} className="flex flex-wrap items-center justify-center gap-2 pt-2">
               {["🧠 AI Analysis", "🎙️ Voice Narration", "🖌️ Oil Painting", "🔥 Advanced Level"].map((f) => (
                 <span key={f} className="text-xs px-3 py-1.5 rounded-full"
@@ -252,7 +252,7 @@ export default function LandingPage({ onGetStarted }) {
               <span className="text-xs tracking-[0.25em] uppercase" style={{ color: "#c8793a" }}>Features</span>
               <h3 className="text-3xl md:text-5xl font-bold"
                 style={{ fontFamily: "'Cormorant Garamond', serif", color: "#f2e8d8" }}>
-                Lahat ng kailangan mo para<br /><em>matutong mag-oil paint.</em>
+                Everything you need to<br /><em>learn to oil paint.</em>
               </h3>
               <GoldDivider />
             </motion.div>
@@ -285,7 +285,7 @@ export default function LandingPage({ onGetStarted }) {
               <span className="text-xs tracking-[0.25em] uppercase" style={{ color: "#7a9ab5" }}>How it Works</span>
               <h3 className="text-3xl md:text-5xl font-bold"
                 style={{ fontFamily: "'Cormorant Garamond', serif", color: "#f2e8d8" }}>
-                Apat na hakbang. <em style={{ color: "#c8793a" }}>Isang masterpiece.</em>
+                Four steps. <em style={{ color: "#c8793a" }}>One masterpiece.</em>
               </h3>
               <GoldDivider />
             </motion.div>
@@ -318,7 +318,7 @@ export default function LandingPage({ onGetStarted }) {
               <span className="text-xs tracking-[0.25em] uppercase" style={{ color: "#c8793a" }}>Techniques</span>
               <h3 className="text-3xl md:text-5xl font-bold"
                 style={{ fontFamily: "'Cormorant Garamond', serif", color: "#f2e8d8" }}>
-                Piliin ang iyong <em style={{ color: "#c8793a" }}>technique.</em>
+                Choose your <em style={{ color: "#c8793a" }}>technique.</em>
               </h3>
               <GoldDivider />
             </motion.div>
@@ -351,7 +351,7 @@ export default function LandingPage({ onGetStarted }) {
               className="text-center space-y-4">
               <span className="text-xs tracking-[0.25em] uppercase" style={{ color: "#7a9ab5" }}>Testimonials</span>
               <h3 className="text-3xl md:text-4xl font-bold"
-                style={{ fontFamily: "'Cormorant Garamond', serif", color: "#f2e8d8" }}>Ano ang sinasabi nila.</h3>
+                style={{ fontFamily: "'Cormorant Garamond', serif", color: "#f2e8d8" }}>What people are saying.</h3>
               <GoldDivider />
             </motion.div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -388,13 +388,13 @@ export default function LandingPage({ onGetStarted }) {
             </div>
             <h3 className="text-4xl md:text-6xl font-bold leading-tight"
               style={{ fontFamily: "'Cormorant Garamond', serif", color: "#f2e8d8" }}>
-              Handa ka na bang{" "}
+              Ready to learn{" "}
               <em style={{ background: "linear-gradient(120deg, #e8b86d, #c8793a)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                matutong mag-oil paint?
+                oil painting?
               </em>
             </h3>
             <p className="text-sm leading-relaxed max-w-md mx-auto" style={{ color: "#6a5a4a" }}>
-              I-upload ang iyong unang photo ngayon at makita kung paano ito ginagawang oil painting ng AI.
+              Upload your first photo now and watch the AI turn it into a full oil painting tutorial.
             </p>
             <PaintSwatches />
             <button onClick={onGetStarted}
@@ -402,7 +402,7 @@ export default function LandingPage({ onGetStarted }) {
               style={{ background: "linear-gradient(135deg, #c8793a, #a05a28)", boxShadow: "0 0 50px rgba(200,121,58,0.30)" }}
               onMouseEnter={e => e.currentTarget.style.boxShadow = "0 0 70px rgba(200,121,58,0.50)"}
               onMouseLeave={e => e.currentTarget.style.boxShadow = "0 0 50px rgba(200,121,58,0.30)"}>
-              Simulan ang Tutorial
+              Start Your Tutorial
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
           </motion.div>
@@ -419,7 +419,7 @@ export default function LandingPage({ onGetStarted }) {
               <span className="text-xs font-medium" style={{ color: "#4a3728" }}>PaintFlow AI</span>
             </div>
             <PaintSwatches />
-            <p className="text-xs" style={{ color: "#4a3728" }}>Powered by AI • Learn to oil paint anything 🖌️</p>
+            <p className="text-xs" style={{ color: "#4a3728" }}>Powered by AI · Learn to oil paint anything 🖌️</p>
           </div>
         </footer>
 
