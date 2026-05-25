@@ -7,64 +7,64 @@ export const PHASES = [
   {
     id:      "grid",
     label:   "Step 1: Grid Method",
-    tagalog: "Gumawa ng grid para tama ang proportions ng iyong drawing. Hatiin ang papel at reference sa parehong bilang ng kahon.",
-    tip:     "💡 Tip: Gamitin ang 4x4 o 6x6 grid. Ang bawat kahon = isang maliit na parte ng larawan.",
+    tagalog: "Draw a grid to get the proportions of your drawing right. Divide both the paper and reference into the same number of cells.",
+    tip:     "💡 Tip: Use a 4x4 or 6x6 grid. Each cell = one small section of the image.",
     color:   "#6366f1",
   },
   {
     id:      "sketch",
     label:   "Step 2: Pencil Sketch",
-    tagalog: "Iguhit nang magaan ang mga pangunahing hugis. Sundan ang mga gilid (edges) ng bawat hugis.",
-    tip:     "💡 Tip: Mula sa malaking hugis papunta sa maliliit na detalye. Magaan lang ang kamay!",
+    tagalog: "Lightly sketch the main shapes. Follow the edges of each shape.",
+    tip:     "💡 Tip: Work from large shapes down to small details. Keep a light touch!",
     color:   "#94a3b8",
   },
   {
     id:      "imprimatura",
     label:   "Step 3: Imprimatura",
-    tagalog: "Pahiran ng manipis na brown/orange wash ang buong canvas. Hayaang matuyo bago magpatuloy.",
-    tip:     "💡 Tip: I-dilute ang burnt sienna sa turpentine hanggang halos transparent. Ito ang tono ng iyong painting.",
+    tagalog: "Apply a thin brown/orange wash over the entire canvas. Let it dry before moving on.",
+    tip:     "💡 Tip: Dilute burnt sienna in turpentine until nearly transparent. This sets the tone of your painting.",
     color:   "#c8804a",
   },
   {
     id:      "grisaille",
     label:   "Step 4: Grisaille (Dead Layer)",
-    tagalog: "I-paint ang lahat sa grey/sepia muna. Walang kulay pa — values lang ang focus.",
-    tip:     "💡 Tip: Gamitin ang burnt umber + white. Kung mali ang values dito, mali rin ang buong painting.",
+    tagalog: "Paint everything in grey/sepia first. No color yet — values are the only focus.",
+    tip:     "💡 Tip: Use burnt umber + white. If your values are wrong here, the whole painting will be off.",
     color:   "#7a5c3a",
   },
   {
     id:      "wetOnWet",
     label:   "Step 5: Wet-on-Wet Color",
-    tagalog: "Mag-apply ng kulay habang basa pa ang canvas para mag-blend nang natural.",
-    tip:     "💡 Tip: Huwag mag-over-mix — hayaan ang kulay na mag-bleed sa isa't isa.",
+    tagalog: "Apply color while the canvas is still wet so the colors blend naturally.",
+    tip:     "💡 Tip: Don't over-mix — let the colors bleed into each other.",
     color:   "#4a7a9b",
   },
   {
     id:      "glaze",
     label:   "Step 6: Glazing",
-    tagalog: "Manipis na transparent na kulay sa ibabaw ng tuyo nang paint para magdagdag ng depth.",
-    tip:     "💡 Tip: I-mix ang kulay sa linseed oil para transparent. Hayaang matuyo bawat layer.",
+    tagalog: "Apply thin, transparent color over dried paint to add depth.",
+    tip:     "💡 Tip: Mix your color with linseed oil to make it transparent. Let each layer dry completely.",
     color:   "#8b6914",
   },
   {
     id:      "scumble",
     label:   "Step 7: Scumbling",
-    tagalog: "Dry brush technique sa mga highlight. Kunin ang karamihan ng paint sa brush bago mag-paint.",
-    tip:     "💡 Tip: I-wipe ang brush sa papel muna para maging dry. Magaan na strokes.",
+    tagalog: "Dry brush technique for highlights. Remove most of the paint from the brush before applying.",
+    tip:     "💡 Tip: Wipe the brush on paper first to dry it out. Use light strokes.",
     color:   "#c4a882",
   },
   {
     id:      "detail",
     label:   "Step 8: Details & Impasto",
-    tagalog: "Mga detalye at makapal na paint sa pinakamaliliwanag na bahagi.",
-    tip:     "💡 Tip: Para sa impasto, gumamit ng palette knife. Isa lang na stroke — huwag ulit-ulitin.",
+    tagalog: "Add details and thick paint to the lightest areas.",
+    tip:     "💡 Tip: For impasto, use a palette knife. One stroke only — don't go back over it.",
     color:   "#2d5a8e",
   },
   {
     id:      "pixel",
     label:   "Step 9: Final Refinement",
-    tagalog: "Huling touches para ma-match ang reference. Tingnan mula sa malayo.",
-    tip:     "💡 Tip: Lumayo sa painting (3-4 steps back). Kung maganda mula sa malayo, tapos na!",
+    tagalog: "Final touches to match the reference. View from a distance.",
+    tip:     "💡 Tip: Step back from the painting (3–4 steps). If it looks great from far away, you're done!",
     color:   "#1a3a1a",
   },
 ];
@@ -122,7 +122,7 @@ export function drawGrid(ctx, width, height, cols = 6, rows = 6, color = "rgba(9
 
 // ── Imprimatura — brush stroke wash (no circles) ──────────
 export function drawImprimatura(ctx, width, height) {
-  // Base coat — semi-transparent para visible pa rin ang sketch sa ilalim
+  // Base coat — semi-transparent so the sketch underneath stays visible
   ctx.fillStyle = "rgba(192, 120, 64, 0.45)";
   ctx.fillRect(0, 0, width, height);
 
@@ -211,9 +211,9 @@ function buildEdgeMap(srcCtx, W, H) {
 //  PATCH: Replace generateSketchStrokes + paintSketchStroke
 //  in src/utils/paintingAlgorithm.js
 //
-//  Bago:  Broken/hatch strokes sa edges
-//  Ngayon: Continuous contour lines na sumusunod sa tunay na
-//           hugis ng subject (bundok outline, mukha, etc.)
+//  Before: Broken/hatch strokes on edges
+//  Now:    Continuous contour lines that follow the actual
+//          shape of the subject (mountain outline, face, etc.)
 // ═══════════════════════════════════════════════════════════
 
 export function generateSketchStrokes(width, height, srcCtx) {
@@ -262,8 +262,8 @@ export function generateSketchStrokes(width, height, srcCtx) {
   }
 
   // ── Pass 3: CONTOUR TRACING ────────────────────────────────
-  // Hindi na individual strokes — sundan ang connected edge pixels
-  // at i-draw bilang isang tuluy-tuloy na linya (tulad ng bundok outline)
+  // No longer individual strokes — trace connected edge pixels
+  // and draw them as one continuous line (like a mountain outline, face, etc.)
 
   const edgeThres  = 0.16;
   const visited    = new Uint8Array(width * height);
@@ -456,12 +456,12 @@ export function generateStrokes(width, height) {
     push(x+(Math.random()-.5)*4, y+(Math.random()-.5)*4, 5+Math.random()*3, Math.random()*Math.PI, "scumble");
 
   const fi = 7;  // ← 4→7: ~3x less strokes
-for (let y=0;y<height+fi;y+=fi) for (let x=0;x<width+fi;x+=fi)
-  push(x+(Math.random()-.5)*2, y+(Math.random()-.5)*2, 4+Math.random()*2, null, "detail");
+  for (let y=0;y<height+fi;y+=fi) for (let x=0;x<width+fi;x+=fi)
+    push(x+(Math.random()-.5)*2, y+(Math.random()-.5)*2, 4+Math.random()*2, null, "detail");
 
-const st = 6;  // ← 3→6: ~4x less strokes
-for (let y=0;y<height;y+=st) for (let x=0;x<width;x+=st)
-  push(x+(Math.random()-.5)*2, y+(Math.random()-.5)*2, st, 0, "pixel");
+  const st = 6;  // ← 3→6: ~4x less strokes
+  for (let y=0;y<height;y+=st) for (let x=0;x<width;x+=st)
+    push(x+(Math.random()-.5)*2, y+(Math.random()-.5)*2, st, 0, "pixel");
 
   return strokes;
 }
@@ -474,33 +474,33 @@ export function paintStroke(ctx, offCtx, stroke, W, H) {
   const cy = Math.max(0, Math.min(y, H-1));
 
   if (type === "pixel") {
-  const src = sampleColor(offCtx, cx, cy, size, W, H);
-  const cur = sampleCanvas(ctx, cx, cy, W, H);
+    const src = sampleColor(offCtx, cx, cy, size, W, H);
+    const cur = sampleCanvas(ctx, cx, cy, W, H);
 
-  // Laktawan kung malapit na ang kulay — hindi na kailangan ng correction
-  const diff = Math.abs(src.r - cur.r) + Math.abs(src.g - cur.g) + Math.abs(src.b - cur.b);
-  if (diff < 28) return; // ← ~60% ng strokes ay ma-skip
+    // Skip if color is already close — no correction needed
+    const diff = Math.abs(src.r - cur.r) + Math.abs(src.g - cur.g) + Math.abs(src.b - cur.b);
+    if (diff < 28) return; // ← ~60% of strokes will be skipped
 
-  // Malambot na blend patungo sa reference — hindi binubura ang painting
-  const t = Math.min(0.60, diff / 280);
-  const c = {
-    r: Math.round(cur.r + (src.r - cur.r) * t),
-    g: Math.round(cur.g + (src.g - cur.g) * t),
-    b: Math.round(cur.b + (src.b - cur.b) * t),
-  };
-  ctx.save();
-  ctx.translate(x, y);
-  const gr = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 1.5);
-  gr.addColorStop(0,   `rgba(${c.r},${c.g},${c.b},0.55)`);
-  gr.addColorStop(0.6, `rgba(${c.r},${c.g},${c.b},0.28)`);
-  gr.addColorStop(1,   `rgba(${c.r},${c.g},${c.b},0)`);
-  ctx.beginPath();
-  ctx.arc(0, 0, size * 1.5, 0, Math.PI * 2);
-  ctx.fillStyle = gr;
-  ctx.fill();
-  ctx.restore();
-  return;
-}
+    // Soft blend toward reference — doesn't erase the painting
+    const t = Math.min(0.60, diff / 280);
+    const c = {
+      r: Math.round(cur.r + (src.r - cur.r) * t),
+      g: Math.round(cur.g + (src.g - cur.g) * t),
+      b: Math.round(cur.b + (src.b - cur.b) * t),
+    };
+    ctx.save();
+    ctx.translate(x, y);
+    const gr = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 1.5);
+    gr.addColorStop(0,   `rgba(${c.r},${c.g},${c.b},0.55)`);
+    gr.addColorStop(0.6, `rgba(${c.r},${c.g},${c.b},0.28)`);
+    gr.addColorStop(1,   `rgba(${c.r},${c.g},${c.b},0)`);
+    ctx.beginPath();
+    ctx.arc(0, 0, size * 1.5, 0, Math.PI * 2);
+    ctx.fillStyle = gr;
+    ctx.fill();
+    ctx.restore();
+    return;
+  }
 
   if (angle === null) {
     angle = edgeAngle(offCtx, cx, cy, W, H) + (Math.random()-.5)*.45;
@@ -603,8 +603,8 @@ export function paintStroke(ctx, offCtx, stroke, W, H) {
   }
 
   else if (type === "detail") {
-  const l = lum(src);
-  if (l > 55 && l < 188) { ctx.restore(); return; } 
+    const l = lum(src);
+    if (l > 55 && l < 188) { ctx.restore(); return; }
     if (lum(src) > 200) {
       const ic = { r:clamp(src.r+30), g:clamp(src.g+28), b:clamp(src.b+22) };
       ctx.beginPath(); ctx.ellipse(0,0,size*1.3,size*.55,0,0,Math.PI*2);
