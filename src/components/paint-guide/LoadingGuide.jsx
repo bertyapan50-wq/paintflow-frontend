@@ -15,20 +15,20 @@ const C = {
 const phases = [
   {
     icon: Palette,
-    title: "Sinusuri ang larawan",
-    subtitle: "Tinitingnan ang kulay, komposisyon, at subject",
+    title: "Analyzing your photo",
+    subtitle: "Examining color, composition, and subject",
     accent: C.sienna,
   },
   {
     icon: Paintbrush,
-    title: "Ginagawa ang tutorial",
-    subtitle: "Bawat step ay maingat na inilalagay",
+    title: "Building your tutorial",
+    subtitle: "Each step is carefully crafted",
     accent: C.ochre,
   },
   {
     icon: Sparkles,
-    title: "Halos tapos na",
-    subtitle: "Inihahanda ang iyong step-by-step guide",
+    title: "Almost done",
+    subtitle: "Preparing your step-by-step guide",
     accent: C.sienna,
   },
 ];

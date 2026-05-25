@@ -15,12 +15,10 @@ const C = {
 };
 
 const SKILL_CHIPS = [
-  { key: "beginner",     label: "🌱 Baguhan",     accent: "#5fa86d" },
-  { key: "intermediate", label: "🎨 Katamtaman",  accent: C.sienna  },
-  { key: "advanced",     label: "🔥 Advanced",     accent: "#c84a3a" },
+  { key: "advanced", label: "🔥 Advanced", accent: "#c84a3a" },
 ];
 
-export default function ImageUploader({ onImageSelected, isLoading, skillLevel = "intermediate" }) {
+export default function ImageUploader({ onImageSelected, isLoading, skillLevel = "advanced" }) {
   const fileInputRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [preview, setPreview]       = useState(null);
@@ -224,10 +222,10 @@ export default function ImageUploader({ onImageSelected, isLoading, skillLevel =
                   fontSize: 22, fontWeight: 700, color: C.cream,
                   marginBottom: 6, letterSpacing: "-0.01em",
                 }}>
-                  {isDragging ? "I-drop dito!" : "I-drop ang iyong reference photo"}
+                  {isDragging ? "Drop it here!" : "Drop your reference photo here"}
                 </p>
                 <p style={{ fontSize: 13, color: C.muted, marginBottom: 4 }}>
-                  Nature, hayop, tanawin, portrait — kahit ano
+                  Nature, animals, landscapes, portraits — anything goes
                 </p>
                 <p style={{ fontSize: 11, color: `${C.muted}80`, letterSpacing: "0.04em" }}>
                   PNG · JPG · WebP · Max 15MB
@@ -249,7 +247,7 @@ export default function ImageUploader({ onImageSelected, isLoading, skillLevel =
                 }}
               >
                 <Upload size={15} color="#0c0907" strokeWidth={2.5} />
-                Pumili ng Larawan
+                Choose a Photo
               </motion.div>
 
               {/* Skill level chips */}

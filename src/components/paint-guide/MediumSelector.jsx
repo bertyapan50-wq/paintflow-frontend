@@ -14,29 +14,11 @@ const C = {
 
 const SKILL_LEVELS = [
   {
-    id: "beginner",
-    label: "Baguhan",
-    icon: "🌱",
-    subtitle: "Para sa mga nagsisimula",
-    description: "4 hakbang lang: Grid, Sketch, Imprimatura, at Wet-on-Wet. Simple at madaling sundin.",
-    phases: ["Grid", "Sketch", "Imprimatura", "Wet-on-Wet"],
-    accent: "#5fa86d",
-  },
-  {
-    id: "intermediate",
-    label: "Katamtaman",
-    icon: "🎨",
-    subtitle: "Para sa may karanasan",
-    description: "Buong 9-step Old Master process — grisaille, glazing, scumbling, at impasto.",
-    phases: ["Grid", "Sketch", "Imprimatura", "Grisaille", "Wet-on-Wet", "Glaze", "Scumble", "Impasto", "Final"],
-    accent: C.sienna,
-  },
-  {
     id: "advanced",
     label: "Advanced",
     icon: "🔥",
-    subtitle: "Para sa mga serious",
-    description: "Full Old Master technique — detalyadong color theory, precise mixing ratios, at advanced color mixing sa bawat phase.",
+    subtitle: "For serious artists",
+    description: "Full Old Master technique — detailed color theory, precise mixing ratios, and advanced color mixing at every phase.",
     phases: ["Grid", "Sketch", "Imprimatura", "Grisaille", "Wet-on-Wet", "Glaze", "Scumble", "Impasto", "Final"],
     accent: "#c84a3a",
   },
