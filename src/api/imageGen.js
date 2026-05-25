@@ -25,8 +25,8 @@ export async function generateStepImageImg2Img(prompt, imageBase64, strength = 0
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ prompt, strength, seed }),
-    // Note: imageBase64 not sent — HF free tier walang img2img endpoint
-    // Ginagamit natin ang strength para mag-hint sa prompt kung anong stage
+    // Note: imageBase64 not sent — HF free tier has no img2img endpoint
+    // We use strength to hint the prompt about what stage we're in
   });
 
   if (!response.ok) {
