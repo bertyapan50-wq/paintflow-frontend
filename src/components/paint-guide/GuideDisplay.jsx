@@ -83,7 +83,7 @@ const Waveform = () => (
   </div>
 );
 
-export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "intermediate" }) {
+export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "intermediate", customerEmail = "" }) {
   const [showAllMaterials, setShowAllMaterials] = useState(false);
   const [videoRequested, setVideoRequested]     = useState(false);
 
@@ -137,7 +137,7 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
       const res = await fetch(`${API_URL}/api/create-payment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ skillLevel }),
+        body: JSON.stringify({ skillLevel, customerEmail }),
       });
 
       if (!res.ok) {
@@ -180,6 +180,7 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
       const res = await fetch(`${API_URL}/api/create-subscription`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customerEmail }),
       });
 
       if (!res.ok) {
