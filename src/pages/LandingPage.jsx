@@ -408,6 +408,8 @@ export default function LandingPage({ onGetStarted }) {
           </motion.div>
         </section>
 
+        
+
         {/* ══ FOOTER ══ */}
         <footer className="border-t py-8" style={{ borderColor: "rgba(200,121,58,0.10)" }}>
           <div className="max-w-6xl mx-auto px-5 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -419,9 +421,23 @@ export default function LandingPage({ onGetStarted }) {
               <span className="text-xs font-medium" style={{ color: "#4a3728" }}>PaintFlow AI</span>
             </div>
             <PaintSwatches />
+            <div className="flex items-center gap-4">
+              <a href="/privacy" className="text-xs transition-colors" style={{ color: "#4a3728" }}
+                onMouseEnter={e => e.currentTarget.style.color = "#c8793a"}
+                onMouseLeave={e => e.currentTarget.style.color = "#4a3728"}>
+                Privacy Policy
+              </a>
+              <span className="text-xs" style={{ color: "#4a3728" }}>·</span>
+              <a href="/terms" className="text-xs transition-colors" style={{ color: "#4a3728" }}
+                onMouseEnter={e => e.currentTarget.style.color = "#c8793a"}
+                onMouseLeave={e => e.currentTarget.style.color = "#4a3728"}>
+                Terms of Service
+              </a>
+            </div>
             <p className="text-xs" style={{ color: "#4a3728" }}>Powered by AI · Learn to oil paint anything 🖌️</p>
           </div>
         </footer>
+
 
       </div>
     </div>

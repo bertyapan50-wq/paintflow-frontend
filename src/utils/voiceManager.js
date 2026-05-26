@@ -126,7 +126,7 @@ export function getActiveCaptionIndex(phaseStartMs, captionDurationMs) {
   return Math.floor(elapsed / captionDurationMs);
 }
 
-// Hintayin matapos ang lahat ng speech bago i-stop ang recorder
+// Wait for all speech to finish before stopping the recorder
 export function waitForSpeechEnd() {
   return new Promise((resolve) => {
     const check = () => {
