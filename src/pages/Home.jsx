@@ -3,7 +3,7 @@
 import API_URL from "../lib/api";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Brush, Film, RotateCcw } from "lucide-react";
+import { Brush, Film, RotateCcw, Mail } from "lucide-react";
 import ImageUploader from "../components/paint-guide/ImageUploader";
 import GuideDisplay from "../components/paint-guide/GuideDisplay";
 import LoadingGuide from "../components/paint-guide/LoadingGuide";
@@ -20,25 +20,22 @@ const C = {
   border:   "rgba(200,121,58,0.18)",
 };
 
-/* ── Ambient canvas background (same grain + glow as LandingPage) ── */
+/* ── Ambient canvas background ── */
 function AtelierCanvas() {
   return (
     <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden" style={{ background: C.canvas }}>
-      {/* Warm amber glow — top left */}
       <div style={{
         position: "absolute", top: "-10%", left: "-5%",
         width: 600, height: 600, borderRadius: "50%",
         background: "radial-gradient(circle, rgba(200,121,58,0.13) 0%, transparent 70%)",
         filter: "blur(40px)",
       }} />
-      {/* Ochre glow — bottom right */}
       <div style={{
         position: "absolute", bottom: "-10%", right: "-5%",
         width: 500, height: 500, borderRadius: "50%",
         background: "radial-gradient(circle, rgba(232,184,109,0.08) 0%, transparent 70%)",
         filter: "blur(50px)",
       }} />
-      {/* Grain texture overlay */}
       <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0.35 }}>
         <filter id="hm-grain">
           <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="4" stitchTiles="stitch" />
@@ -50,7 +47,6 @@ function AtelierCanvas() {
   );
 }
 
-/* ── Thin gold divider ── */
 const Divider = ({ style }) => (
   <div style={{
     height: 1,
@@ -59,12 +55,90 @@ const Divider = ({ style }) => (
   }} />
 );
 
-/* ── Skill level pill configs ── */
 const SKILL_BADGES = {
   beginner:     { label: "Beginner",     emoji: "🌱", accent: "#5fa86d" },
   intermediate: { label: "Intermediate", emoji: "🎨", accent: C.sienna },
   advanced:     { label: "Advanced",     emoji: "🔥", accent: "#c84a3a" },
 };
+
+/* ── Email Input Component ── */
+function EmailInput({ value, onChange }) {
+  const [focused, setFocused] = useState(false);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.45 }}
+      style={{ maxWidth: 420, margin: "0 auto 24px" }}
+    >
+      <label style={{
+        display: "block",
+        fontSize: 11,
+        color: C.muted,
+        letterSpacing: "0.08em",
+        textTransform: "uppercase",
+        fontWeight: 600,
+        marginBottom: 8,
+      }}>
+        Your Email <span style={{ color: C.sienna }}>*</span>
+        <span style={{ color: `${C.muted}80`, fontWeight: 400, textTransform: "none", letterSpacing: 0, marginLeft: 6 }}>
+          — for your tutorial confirmation
+        </span>
+      </label>
+
+      <div style={{
+        position: "relative",
+        display: "flex",
+        alignItems: "center",
+        borderRadius: 12,
+        border: `1px solid ${focused ? C.sienna : C.border}`,
+        background: focused ? `${C.sienna}08` : "rgba(255,255,255,0.03)",
+        transition: "all 0.2s",
+        boxShadow: focused ? `0 0 20px ${C.sienna}20` : "none",
+      }}>
+        <Mail
+          size={15}
+          style={{
+            position: "absolute",
+            left: 14,
+            color: focused ? C.sienna : C.muted,
+            transition: "color 0.2s",
+            pointerEvents: "none",
+          }}
+        />
+        <input
+          type="email"
+          placeholder="you@example.com"
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          style={{
+            width: "100%",
+            padding: "12px 14px 12px 38px",
+            background: "transparent",
+            border: "none",
+            outline: "none",
+            color: C.cream,
+            fontSize: 14,
+            fontFamily: "'DM Sans', sans-serif",
+            letterSpacing: "0.01em",
+          }}
+        />
+      </div>
+
+      <p style={{
+        fontSize: 11,
+        color: `${C.muted}70`,
+        marginTop: 6,
+        letterSpacing: "0.02em",
+      }}>
+        We'll send your receipt here. No spam, ever.
+      </p>
+    </motion.div>
+  );
+}
 
 export default function Home() {
   const [showApp, setShowApp]           = useState(false);
@@ -73,6 +147,7 @@ export default function Home() {
   const [imageUrl, setImageUrl]         = useState(null);
   const [isLoading, setIsLoading]       = useState(false);
   const [loadingPhase, setLoadingPhase] = useState(0);
+  const [customerEmail, setCustomerEmail] = useState("");
 
   const medium = "oil";
 
@@ -98,7 +173,12 @@ export default function Home() {
       const res = await fetch(`${API_URL}/api/tutorial`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageBase64, medium, skillLevel }),
+        body: JSON.stringify({
+          imageBase64,
+          medium,
+          skillLevel,
+          customerEmail: customerEmail.trim() || undefined,
+        }),
       });
 
       if (!res.ok) {
@@ -164,8 +244,6 @@ export default function Home() {
           position: "sticky", top: 0, zIndex: 20,
         }}>
           <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 20px", height: 60, display: "flex", alignItems: "center", gap: 12 }}>
-
-            {/* Logo */}
             <button
               onClick={handleHome}
               style={{ display: "flex", alignItems: "center", gap: 10, background: "none", border: "none", cursor: "pointer", padding: 0 }}
@@ -192,10 +270,7 @@ export default function Home() {
               </div>
             </button>
 
-            {/* Right side pills */}
             <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
-
-              {/* Oil painting badge — always */}
               <span style={{
                 display: "inline-flex", alignItems: "center", gap: 6,
                 padding: "5px 12px", borderRadius: 99,
@@ -207,7 +282,6 @@ export default function Home() {
                 🎨 Oil Painting
               </span>
 
-              {/* Skill badge — only when guide active */}
               {guide && (
                 <motion.span
                   initial={{ opacity: 0, scale: 0.85 }}
@@ -224,7 +298,6 @@ export default function Home() {
                 </motion.span>
               )}
 
-              {/* New Tutorial */}
               {guide && (
                 <button
                   onClick={handleReset}
@@ -249,7 +322,6 @@ export default function Home() {
 
         {/* ══ MAIN ══ */}
         <main style={{ flex: 1, maxWidth: 960, width: "100%", margin: "0 auto", padding: "60px 20px" }}>
-
           <AnimatePresence mode="wait">
 
             {/* ── Upload screen ── */}
@@ -263,8 +335,6 @@ export default function Home() {
               >
                 {/* Hero text */}
                 <div style={{ textAlign: "center", marginBottom: 48 }}>
-
-                  {/* Eyebrow pill */}
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -283,7 +353,6 @@ export default function Home() {
                     AI-Narrated Video Tutorial · Step by Step
                   </motion.div>
 
-                  {/* Heading */}
                   <motion.h2
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -297,31 +366,22 @@ export default function Home() {
                     }}
                   >
                     Upload a photo,{" "}
-                    <span style={{ color: C.sienna, fontStyle: "italic" }}>
-                      we'll teach
-                    </span>
+                    <span style={{ color: C.sienna, fontStyle: "italic" }}>we'll teach</span>
                     <br />
-                    <span style={{ color: C.ochre, fontStyle: "italic" }}>
-                      you to paint it.
-                    </span>
+                    <span style={{ color: C.ochre, fontStyle: "italic" }}>you to paint it.</span>
                   </motion.h2>
 
-                  {/* Sub */}
                   <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.28 }}
-                    style={{
-                      fontSize: 15, color: C.muted, maxWidth: 520, margin: "0 auto 32px",
-                      lineHeight: 1.7,
-                    }}
+                    style={{ fontSize: 15, color: C.muted, maxWidth: 520, margin: "0 auto 32px", lineHeight: 1.7 }}
                   >
                     Upload any reference photo — landscapes, portraits, still life —
                     and our AI instructor will craft a complete narrated oil painting tutorial,
                     step by step.
                   </motion.p>
 
-                  {/* Feature badges */}
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -353,10 +413,12 @@ export default function Home() {
                   </motion.div>
                 </div>
 
-                {/* Gold divider */}
                 <Divider style={{ marginBottom: 40 }} />
 
-                {/* Image Uploader */}
+                {/* ── Email Input ── */}
+                <EmailInput value={customerEmail} onChange={setCustomerEmail} />
+
+                {/* ── Image Uploader ── */}
                 <motion.div
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -369,7 +431,6 @@ export default function Home() {
                   />
                 </motion.div>
 
-                {/* Bottom tip */}
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -387,12 +448,7 @@ export default function Home() {
 
             {/* ── Loading ── */}
             {isLoading && (
-              <motion.div
-                key="loading"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
+              <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                 <LoadingGuide phase={loadingPhase} />
               </motion.div>
             )}
@@ -411,6 +467,7 @@ export default function Home() {
                   imageUrl={imageUrl}
                   onReset={handleReset}
                   skillLevel={skillLevel}
+                  customerEmail={customerEmail}
                 />
               </motion.div>
             )}
@@ -435,9 +492,21 @@ export default function Home() {
               </div>
               <span style={{ fontSize: 12, color: C.muted, fontWeight: 500 }}>PaintFlow AI</span>
             </div>
-            <p style={{ fontSize: 11, color: `${C.muted}88`, letterSpacing: "0.04em" }}>
-              Powered by AI · Learn to paint anything
-            </p>
+            <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+              <a href="/privacy" style={{ fontSize: 11, color: `${C.muted}88`, textDecoration: "none", letterSpacing: "0.04em" }}
+                onMouseEnter={e => e.currentTarget.style.color = C.sienna}
+                onMouseLeave={e => e.currentTarget.style.color = `${C.muted}88`}>
+                Privacy
+              </a>
+              <a href="/terms" style={{ fontSize: 11, color: `${C.muted}88`, textDecoration: "none", letterSpacing: "0.04em" }}
+                onMouseEnter={e => e.currentTarget.style.color = C.sienna}
+                onMouseLeave={e => e.currentTarget.style.color = `${C.muted}88`}>
+                Terms
+              </a>
+              <p style={{ fontSize: 11, color: `${C.muted}88`, letterSpacing: "0.04em", margin: 0 }}>
+                Powered by AI · Learn to paint anything
+              </p>
+            </div>
           </div>
         </footer>
 
