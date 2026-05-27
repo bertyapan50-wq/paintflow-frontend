@@ -1029,11 +1029,17 @@ export default function PaintingTimelapse({ guide, imageUrl, skillLevel = "inter
   };
 
   const download = () => {
+  if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+    window.open(videoUrl, "_blank");
+  } else {
     const a = document.createElement("a");
     a.href = videoUrl;
     a.download = `paintflow-${skillLevel}-tutorial.${fileExt}`;
+    document.body.appendChild(a);
     a.click();
-  };
+    document.body.removeChild(a);
+  }
+};
 
   const reset = () => {
     if (videoUrl) URL.revokeObjectURL(videoUrl);
