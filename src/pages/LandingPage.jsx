@@ -1,7 +1,7 @@
 // src/pages/LandingPage.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Brush, Film, Sparkles, ArrowRight, ChevronDown, BookOpen, Layers, Palette, Eye } from "lucide-react";
+import { Brush, Film, Sparkles, ArrowRight, ChevronDown, BookOpen, Layers, Palette, Eye, Check, Zap } from "lucide-react";
 
 /* ─── Background Component ─────────────────────────────────── */
 function AtelierBackground() {
@@ -61,12 +61,6 @@ const HOW_STEPS = [
   { n: "IV",  icon: "🖌️", title: "Start painting!",         desc: "Follow each step — from canvas prep and imprimatura all the way to final varnish." },
 ];
 
-const TESTIMONIALS = [
-  { name: "Maria Santos", role: "Hobbyist Painter", avatar: "🧑‍🎨", quote: "I couldn't believe it — I had no idea where to start with oil painting, and now I've finished my first portrait!" },
-  { name: "Joven Reyes", role: "Art Student", avatar: "👨‍🎓", quote: "The color mixing guide is incredibly helpful. I no longer have to guess how to mix flesh tones." },
-  { name: "Celine Lim", role: "Creative Professional", avatar: "👩‍💻", quote: "The AI analysis is seriously impressive. It knows exactly which technique suits each subject." },
-];
-
 const SWATCHES = ["#c8793a", "#e8b86d", "#8b4513", "#7a9ab5", "#4a6741", "#2c1810"];
 
 function PaintSwatches() {
@@ -80,29 +74,6 @@ function PaintSwatches() {
   );
 }
 
-function Counter({ to, suffix = "" }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef(null);
-  const started = useRef(false);
-  useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting && !started.current) {
-        started.current = true;
-        let s = 0;
-        const step = Math.ceil(to / 60);
-        const t = setInterval(() => {
-          s = Math.min(s + step, to);
-          setCount(s);
-          if (s >= to) clearInterval(t);
-        }, 16);
-      }
-    });
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, [to]);
-  return <span ref={ref}>{count}{suffix}</span>;
-}
-
 function GoldDivider() {
   return (
     <div className="flex items-center gap-3 my-2">
@@ -113,11 +84,133 @@ function GoldDivider() {
   );
 }
 
+// ── Pricing Plans ────────────────────────────────────────────
+const PLANS = [
+  {
+    id: "one-time",
+    label: "One Tutorial",
+    price: "$2.99",
+    period: "one-time",
+    accent: "#7a9ab5",
+    badge: null,
+    description: "Perfect for trying it out with a single painting project.",
+    features: [
+      "1 AI-generated oil painting tutorial",
+      "Full 10-step classical technique",
+      "Voice-narrated guide",
+      "Color mixing instructions",
+      "Layer-by-layer breakdown",
+      "Painting preview image",
+    ],
+    cta: "Get One Tutorial",
+    type: "one-time",
+  },
+  {
+    id: "subscription",
+    label: "Unlimited",
+    price: "$9.99",
+    period: "per month",
+    accent: "#c8793a",
+    badge: "Best Value",
+    description: "For painters who want to practice with any photo, anytime.",
+    features: [
+      "Unlimited AI tutorials every month",
+      "All skill levels (Beginner → Advanced)",
+      "Full voice narration on every guide",
+      "Priority tutorial generation",
+      "Color mixing & pigment names",
+      "Cancel anytime",
+    ],
+    cta: "Start Subscription",
+    type: "subscription",
+  },
+];
+
+function PricingCard({ plan, onGetStarted }) {
+  const isPopular = plan.badge !== null;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.55 }}
+      className="relative rounded-2xl p-7 flex flex-col gap-6"
+      style={{
+        border: isPopular ? `1px solid rgba(200,121,58,0.45)` : `1px solid rgba(200,121,58,0.15)`,
+        background: isPopular ? "rgba(200,121,58,0.07)" : "rgba(200,121,58,0.03)",
+        boxShadow: isPopular ? "0 0 60px rgba(200,121,58,0.12)" : "none",
+      }}
+    >
+      {/* Badge */}
+      {plan.badge && (
+        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+          <span className="px-4 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase text-white"
+            style={{ background: "linear-gradient(135deg, #c8793a, #a05a28)" }}>
+            {plan.badge}
+          </span>
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="space-y-2">
+        <p className="text-[10px] tracking-[0.2em] uppercase font-semibold" style={{ color: plan.accent }}>
+          {plan.label}
+        </p>
+        <div className="flex items-end gap-1.5">
+          <span className="text-4xl font-bold" style={{ fontFamily: "'Cormorant Garamond', serif", color: "#f2e8d8" }}>
+            {plan.price}
+          </span>
+          <span className="text-xs mb-1.5" style={{ color: "#6a5a4a" }}>/ {plan.period}</span>
+        </div>
+        <p className="text-xs leading-relaxed" style={{ color: "#6a5a4a" }}>{plan.description}</p>
+      </div>
+
+      <GoldDivider />
+
+      {/* Features */}
+      <ul className="space-y-2.5 flex-1">
+        {plan.features.map((f) => (
+          <li key={f} className="flex items-start gap-2.5">
+            <Check className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: plan.accent }} />
+            <span className="text-xs leading-relaxed" style={{ color: "#8a7660" }}>{f}</span>
+          </li>
+        ))}
+      </ul>
+
+      {/* CTA */}
+      <button
+        onClick={() => onGetStarted(plan.type)}
+        className="w-full py-3 rounded-full text-sm font-semibold transition-all"
+        style={
+          isPopular
+            ? { background: "linear-gradient(135deg, #c8793a, #a05a28)", color: "#fff", boxShadow: "0 0 30px rgba(200,121,58,0.30)" }
+            : { border: "1px solid rgba(200,121,58,0.3)", background: "transparent", color: "#c8793a" }
+        }
+        onMouseEnter={e => {
+          if (isPopular) e.currentTarget.style.boxShadow = "0 0 50px rgba(200,121,58,0.50)";
+          else { e.currentTarget.style.background = "rgba(200,121,58,0.08)"; }
+        }}
+        onMouseLeave={e => {
+          if (isPopular) e.currentTarget.style.boxShadow = "0 0 30px rgba(200,121,58,0.30)";
+          else { e.currentTarget.style.background = "transparent"; }
+        }}
+      >
+        {plan.cta}
+      </button>
+    </motion.div>
+  );
+}
+
 export default function LandingPage({ onGetStarted }) {
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroY   = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
   const heroOpa = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
+
+  // onGetStarted can optionally receive plan type — falls back to default behavior
+  const handleGetStarted = (planType) => {
+    if (typeof onGetStarted === "function") onGetStarted(planType);
+  };
 
   return (
     <div className="relative min-h-screen overflow-x-hidden" style={{ color: "#f2e8d8", fontFamily: "'DM Sans', sans-serif" }}>
@@ -142,7 +235,7 @@ export default function LandingPage({ onGetStarted }) {
               </div>
             </div>
             <nav className="ml-auto hidden md:flex items-center gap-6">
-              {["Features", "How it Works", "Techniques"].map((item) => (
+              {["Features", "How it Works", "Pricing"].map((item) => (
                 <a key={item} href={`#${item.toLowerCase().replace(/ /g, "-")}`}
                   className="text-xs tracking-wide transition-colors" style={{ color: "#8a7660" }}
                   onMouseEnter={e => e.target.style.color = "#f2e8d8"}
@@ -151,10 +244,10 @@ export default function LandingPage({ onGetStarted }) {
                 </a>
               ))}
             </nav>
-            <button onClick={onGetStarted}
+            <button onClick={() => handleGetStarted()}
               className="ml-4 md:ml-6 flex items-center gap-1.5 px-4 py-2 rounded-full text-white text-xs font-semibold transition-all"
               style={{ background: "linear-gradient(135deg, #c8793a, #a05a28)", boxShadow: "0 0 20px rgba(200,121,58,0.25)" }}>
-              Try it free <ArrowRight className="w-3.5 h-3.5" />
+              Try it now <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </motion.header>
@@ -187,7 +280,7 @@ export default function LandingPage({ onGetStarted }) {
             <motion.div {...fadeIn(0.32)} className="flex justify-center"><PaintSwatches /></motion.div>
 
             <motion.div {...fadeUp(0.36)} className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <button onClick={onGetStarted}
+              <button onClick={() => handleGetStarted()}
                 className="group flex items-center gap-2 px-8 py-4 rounded-full text-white text-sm font-semibold transition-all"
                 style={{ background: "linear-gradient(135deg, #c8793a, #a05a28)", boxShadow: "0 0 40px rgba(200,121,58,0.30)" }}
                 onMouseEnter={e => e.currentTarget.style.boxShadow = "0 0 60px rgba(200,121,58,0.50)"}
@@ -195,16 +288,16 @@ export default function LandingPage({ onGetStarted }) {
                 Start Your Tutorial
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
-              <a href="#how-it-works"
+              <a href="#pricing"
                 className="flex items-center gap-2 px-6 py-4 rounded-full text-sm font-medium transition-all"
                 style={{ border: "1px solid rgba(200,121,58,0.2)", background: "rgba(200,121,58,0.05)", color: "#8a7660" }}>
-                How does it work?
+                See pricing
               </a>
             </motion.div>
 
-            {/* ── Feature pills ── */}
+            {/* ── Pricing pills ── */}
             <motion.div {...fadeIn(0.5)} className="flex flex-wrap items-center justify-center gap-2 pt-2">
-              {["🧠 AI Analysis", "🎙️ Voice Narration", "🖌️ Oil Painting", "🔥 Advanced Level"].map((f) => (
+              {["💳 $2.99 one tutorial", "🔁 $9.99/mo unlimited", "🎙️ Voice Narration", "🖌️ Old Master Technique"].map((f) => (
                 <span key={f} className="text-xs px-3 py-1.5 rounded-full"
                   style={{ border: "1px solid rgba(200,121,58,0.15)", background: "rgba(200,121,58,0.04)", color: "#8a7660" }}>
                   {f}
@@ -223,22 +316,19 @@ export default function LandingPage({ onGetStarted }) {
           </motion.div>
         </section>
 
-        {/* ══ STATS ══ */}
-        <section className="border-y py-12"
+        {/* ══ WHY SECTION (replaces fake stats) ══ */}
+        <section className="border-y py-14"
           style={{ borderColor: "rgba(200,121,58,0.12)", background: "rgba(200,121,58,0.03)" }}>
-          <div className="max-w-4xl mx-auto px-5 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div className="max-w-4xl mx-auto px-5 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             {[
-              { value: 4,   suffix: "",  label: "Oil Techniques" },
-              { value: 10,  suffix: "",  label: "Steps per Guide" },
-              { value: 100, suffix: "%", label: "AI-Generated" },
-              { value: 1,   suffix: "",  label: "Advanced Level" },
+              { icon: "🖌️", title: "Classical technique", desc: "Old Master approach — imprimatura, grisaille, glazing, impasto. Not shortcuts." },
+              { icon: "🧠", title: "Tailored to your photo", desc: "Every tutorial is generated fresh for your specific subject and composition." },
+              { icon: "🎙️", title: "Voice-guided steps", desc: "A narrated instructor walks you through every layer so you never get lost." },
             ].map((s) => (
-              <div key={s.label} className="space-y-1">
-                <p className="text-3xl md:text-4xl font-bold"
-                  style={{ fontFamily: "'Cormorant Garamond', serif", color: "#c8793a" }}>
-                  <Counter to={s.value} suffix={s.suffix} />
-                </p>
-                <p className="text-xs tracking-wide uppercase" style={{ color: "#4a3728" }}>{s.label}</p>
+              <div key={s.title} className="space-y-3 px-4">
+                <span className="text-3xl">{s.icon}</span>
+                <p className="text-sm font-semibold" style={{ fontFamily: "'Cormorant Garamond', serif", color: "#f2e8d8", fontSize: "1.05rem" }}>{s.title}</p>
+                <p className="text-xs leading-relaxed" style={{ color: "#6a5a4a" }}>{s.desc}</p>
               </div>
             ))}
           </div>
@@ -343,37 +433,38 @@ export default function LandingPage({ onGetStarted }) {
           </div>
         </section>
 
-        {/* ══ TESTIMONIALS ══ */}
-        <section className="py-28 px-5 border-t"
+        {/* ══ PRICING ══ */}
+        <section id="pricing" className="py-28 px-5 border-t"
           style={{ borderColor: "rgba(200,121,58,0.10)", background: "rgba(12,9,7,0.5)" }}>
-          <div className="max-w-5xl mx-auto space-y-14">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              className="text-center space-y-4">
-              <span className="text-xs tracking-[0.25em] uppercase" style={{ color: "#7a9ab5" }}>Testimonials</span>
-              <h3 className="text-3xl md:text-4xl font-bold"
-                style={{ fontFamily: "'Cormorant Garamond', serif", color: "#f2e8d8" }}>What people are saying.</h3>
+          <div className="max-w-3xl mx-auto space-y-14">
+            <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center space-y-4">
+              <span className="text-xs tracking-[0.25em] uppercase" style={{ color: "#c8793a" }}>Pricing</span>
+              <h3 className="text-3xl md:text-5xl font-bold"
+                style={{ fontFamily: "'Cormorant Garamond', serif", color: "#f2e8d8" }}>
+                Simple, <em style={{ color: "#c8793a" }}>honest</em> pricing.
+              </h3>
+              <p className="text-sm max-w-sm mx-auto" style={{ color: "#6a5a4a" }}>
+                No subscriptions required to try. Pay once for one tutorial, or go unlimited for serious painters.
+              </p>
               <GoldDivider />
             </motion.div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {TESTIMONIALS.map((t, i) => (
-                <motion.div key={t.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                  className="rounded-2xl p-6 space-y-5"
-                  style={{ border: "1px solid rgba(200,121,58,0.12)", background: "rgba(200,121,58,0.04)" }}>
-                  <div className="flex gap-0.5">
-                    {[...Array(5)].map((_, i) => <span key={i} style={{ color: "#c8793a", fontSize: 12 }}>★</span>)}
-                  </div>
-                  <p className="text-sm leading-relaxed italic" style={{ color: "#8a7660" }}>"{t.quote}"</p>
-                  <div className="flex items-center gap-3 pt-2 border-t" style={{ borderColor: "rgba(200,121,58,0.10)" }}>
-                    <span className="text-2xl">{t.avatar}</span>
-                    <div>
-                      <p className="text-xs font-semibold" style={{ color: "#f2e8d8" }}>{t.name}</p>
-                      <p className="text-[10px]" style={{ color: "#4a3728" }}>{t.role}</p>
-                    </div>
-                  </div>
-                </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {PLANS.map((plan) => (
+                <PricingCard key={plan.id} plan={plan} onGetStarted={handleGetStarted} />
               ))}
             </div>
+
+            {/* Trust note */}
+            <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+              className="text-center space-y-2">
+              <div className="flex items-center justify-center gap-4 flex-wrap">
+                {["🔒 Secure payment via Dodo", "📧 Instant email confirmation", "❌ Cancel subscription anytime"].map(t => (
+                  <span key={t} className="text-xs" style={{ color: "#4a3728" }}>{t}</span>
+                ))}
+              </div>
+            </motion.div>
           </div>
         </section>
 
@@ -394,21 +485,27 @@ export default function LandingPage({ onGetStarted }) {
               </em>
             </h3>
             <p className="text-sm leading-relaxed max-w-md mx-auto" style={{ color: "#6a5a4a" }}>
-              Upload your first photo now and watch the AI turn it into a full oil painting tutorial.
+              Upload your first photo and get a complete, classical oil painting tutorial in seconds. Start with one tutorial for $2.99 — no commitment needed.
             </p>
             <PaintSwatches />
-            <button onClick={onGetStarted}
-              className="group inline-flex items-center gap-3 px-10 py-4 rounded-full text-white font-semibold text-sm transition-all"
-              style={{ background: "linear-gradient(135deg, #c8793a, #a05a28)", boxShadow: "0 0 50px rgba(200,121,58,0.30)" }}
-              onMouseEnter={e => e.currentTarget.style.boxShadow = "0 0 70px rgba(200,121,58,0.50)"}
-              onMouseLeave={e => e.currentTarget.style.boxShadow = "0 0 50px rgba(200,121,58,0.30)"}>
-              Start Your Tutorial
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </button>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button onClick={() => handleGetStarted("one-time")}
+                className="group inline-flex items-center gap-3 px-10 py-4 rounded-full text-white font-semibold text-sm transition-all"
+                style={{ background: "linear-gradient(135deg, #c8793a, #a05a28)", boxShadow: "0 0 50px rgba(200,121,58,0.30)" }}
+                onMouseEnter={e => e.currentTarget.style.boxShadow = "0 0 70px rgba(200,121,58,0.50)"}
+                onMouseLeave={e => e.currentTarget.style.boxShadow = "0 0 50px rgba(200,121,58,0.30)"}>
+                Try for $2.99
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
+              <button onClick={() => handleGetStarted("subscription")}
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-sm font-medium transition-all"
+                style={{ border: "1px solid rgba(200,121,58,0.2)", background: "rgba(200,121,58,0.05)", color: "#8a7660" }}>
+                <Zap className="w-3.5 h-3.5" style={{ color: "#c8793a" }} />
+                Go unlimited — $9.99/mo
+              </button>
+            </div>
           </motion.div>
         </section>
-
-        
 
         {/* ══ FOOTER ══ */}
         <footer className="border-t py-8" style={{ borderColor: "rgba(200,121,58,0.10)" }}>
@@ -437,7 +534,6 @@ export default function LandingPage({ onGetStarted }) {
             <p className="text-xs" style={{ color: "#4a3728" }}>Powered by AI · Learn to oil paint anything 🖌️</p>
           </div>
         </footer>
-
 
       </div>
     </div>
