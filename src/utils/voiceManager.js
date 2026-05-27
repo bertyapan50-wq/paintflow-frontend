@@ -3,7 +3,7 @@
 //  Audio routed through AudioContext → MediaStreamDestination
 //  so it gets recorded together with the canvas stream.
 // ═══════════════════════════════════════════════════════════
-
+import API_URL from "../api";
 let _audioCtx = null;
 let _destNode = null;
 let _queue    = [];
@@ -37,7 +37,7 @@ async function fetchTTS(text) {
   for (const chunk of chunks) {
     try {
       const res = await fetch(
-        `http://localhost:3001/api/tts?text=${encodeURIComponent(chunk)}`
+        `${API_URL}/api/tts?text=${encodeURIComponent(chunk)}`
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const buf = await res.arrayBuffer();
