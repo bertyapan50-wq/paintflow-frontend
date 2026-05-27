@@ -3,7 +3,7 @@
 //  Audio routed through AudioContext → MediaStreamDestination
 //  so it gets recorded together with the canvas stream.
 // ═══════════════════════════════════════════════════════════
-import API_URL from "../api";
+import API_URL from "../lib/api";
 let _audioCtx = null;
 let _destNode = null;
 let _queue    = [];
