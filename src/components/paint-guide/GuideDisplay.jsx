@@ -4,6 +4,7 @@ import PaintingTimelapse from "./PaintingTimelapse";
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { RotateCcw, ChevronDown, ChevronUp, Clock, BarChart2, Palette, Film, Info, CreditCard, CheckCircle, XCircle, Zap } from "lucide-react";
+const DEV_BYPASS_PAYMENT = true;
 
 /* ── Atelier Noir tokens ── */
 const C = {
@@ -85,7 +86,7 @@ const Waveform = () => (
 
 export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "intermediate", customerEmail = "" }) {
   const [showAllMaterials, setShowAllMaterials] = useState(false);
-  const [videoRequested, setVideoRequested]     = useState(false);
+  const [videoRequested, setVideoRequested] = useState(DEV_BYPASS_PAYMENT);
 
   // Payment states: idle | creating | waiting | verifying | failed
   const [paymentState, setPaymentState]         = useState("idle");
