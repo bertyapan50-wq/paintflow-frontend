@@ -85,7 +85,7 @@ const Waveform = () => (
 
 export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "intermediate", customerEmail = "" }) {
   const [showAllMaterials, setShowAllMaterials] = useState(false);
-  const DEV_BYPASS_PAYMENT = false;
+  const DEV_BYPASS_PAYMENT = true;
 const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
 
   // Payment states: idle | creating | waiting | verifying | failed
