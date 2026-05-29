@@ -752,7 +752,7 @@ export default function PaintingTimelapse({ guide, imageUrl, skillLevel = "inter
   useEffect(() => { initVoice(); }, []);
 
   const getMime = () =>
-    ["video/webm;codecs=vp9","video/webm;codecs=vp8","video/webm","video/mp4"]
+    ["video/mp4","video/webm;codecs=vp9","video/webm;codecs=vp8","video/webm"]
       .find(t => MediaRecorder.isTypeSupported(t)) ?? "";
 
   // Get captions based on skill level
@@ -1028,16 +1028,25 @@ export default function PaintingTimelapse({ guide, imageUrl, skillLevel = "inter
     }
   };
 
-  const download = () => {
-  if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-    window.open(videoUrl, "_blank");
-  } else {
+  const download = async () => {
+  if (!videoUrl) return;
+  try {
+    const response = await fetch(videoUrl);
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = videoUrl;
+    a.href = blobUrl;
     a.download = `paintflow-${skillLevel}-tutorial.${fileExt}`;
+    a.style.display = "none";
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    }, 300);
+  } catch (err) {
+    console.error("Download failed:", err);
+    window.open(videoUrl, "_blank");
   }
 };
 
