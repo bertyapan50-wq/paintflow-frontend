@@ -93,6 +93,7 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
   const [paymentError, setPaymentError]         = useState(null);
   // "onetime" | "subscription"
   const [paymentMode, setPaymentMode]           = useState(null);
+  const [accessToken, setAccessToken]           = useState(null);
 
   const pollIntervalRef   = useRef(null);
   const paymentIdRef      = useRef(null);
@@ -154,10 +155,11 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
       startPolling(async () => {
         try {
           const verifyRes = await fetch(`${API_URL}/api/verify-payment/${payment_id}`);
-          const { paid } = await verifyRes.json();
+          const { paid, token } = await verifyRes.json();
           if (paid) {
             clearInterval(pollIntervalRef.current);
             if (checkoutTabRef.current) checkoutTabRef.current.close();
+            setAccessToken(token);
             setPaymentState("idle");
             setVideoRequested(true);
           }
@@ -197,10 +199,11 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
       startPolling(async () => {
         try {
           const verifyRes = await fetch(`${API_URL}/api/verify-subscription/${subscription_id}`);
-          const { active } = await verifyRes.json();
+          const { active, token } = await verifyRes.json();
           if (active) {
             clearInterval(pollIntervalRef.current);
             if (checkoutTabRef.current) checkoutTabRef.current.close();
+            setAccessToken(token);
             setPaymentState("idle");
             setVideoRequested(true);
           }
@@ -761,7 +764,7 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
               <div style={{ padding: "20px 24px 8px" }}>
                 <SectionLabel>🎬 Tutorial Video</SectionLabel>
               </div>
-              <PaintingTimelapse guide={guide} imageUrl={imageUrl} skillLevel={skillLevel} />
+              <PaintingTimelapse guide={guide} imageUrl={imageUrl} skillLevel={skillLevel} accessToken={accessToken} />
             </Card>
           </motion.div>
         )}

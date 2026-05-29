@@ -726,7 +726,7 @@ function drawTitleCard(ctx, img, width, height, title, medium, skillLabel, title
 // ═══════════════════════════════════════════════════════════
 //  COMPONENT
 // ═══════════════════════════════════════════════════════════
-export default function PaintingTimelapse({ guide, imageUrl, skillLevel = "intermediate" }) {
+export default function PaintingTimelapse({ guide, imageUrl, skillLevel = "intermediate", accessToken = null }) {
   const displayRef  = useRef(null);
   const [status,    setStatus]   = useState("idle");
   const [progress,  setProgress] = useState(0);
@@ -769,6 +769,10 @@ const startPhaseRef = useRef(null);
   const activePhases = PHASES.filter(p => cfg.phaseIds.includes(p.id));
 
   const generate = async () => {
+    if (!accessToken) {
+      setStatus("error");
+      return;
+    }
     setStatus("recording");
     setProgress(0);
     setVideoUrl(null);
