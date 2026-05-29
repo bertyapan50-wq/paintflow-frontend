@@ -737,6 +737,8 @@ export default function PaintingTimelapse({ guide, imageUrl, skillLevel = "inter
   const [colorMix,  setColorMix] = useState(null);
   const isPausedRef = useRef(false);
   const [isPaused,  setIsPaused] = useState(false);
+const [startPhase, setStartPhase] = useState(null);
+const startPhaseRef = useRef(null);
 
   const cfg = SKILL_CONFIG[skillLevel] ?? SKILL_CONFIG.intermediate;
 
@@ -852,10 +854,12 @@ export default function PaintingTimelapse({ guide, imageUrl, skillLevel = "inter
 
       // ── 1. TITLE CARD ─────────────────────────────────────
       drawTitleCard(dCtx, img, width, height, guide?.title ?? "", guide?.medium ?? "Oil Paint", cfg.label, cfg.titleSub);
-      await new Promise(r => setTimeout(r, 2500));
+      await new Promise(r => setTimeout(r, 1500));
 
-      // ── 2. GRID PHASE ──────────────────────────────────────
-      setPhase(PHASES[0]);
+      // ── 2. GRID PHASE ──────────────────────────────────────────
+const skipGrid = startPhaseRef.current && startPhaseRef.current !== "grid";
+if (!skipGrid) {
+setPhase(PHASES[0]);
       setColorMix(colorMixSource.grid);
       phaseStartMs = Date.now();
       speakIfNew("grid");
@@ -867,9 +871,12 @@ export default function PaintingTimelapse({ guide, imageUrl, skillLevel = "inter
         await new Promise(r => setTimeout(r, 0));
       }
       await new Promise(r => setTimeout(r, 1500));
+} // end skipGrid
 
-      // ── 3. SKETCH PHASE ────────────────────────────────────
-      setPhase(PHASES[1]);
+     // ── 3. SKETCH PHASE ────────────────────────────────────────
+const skipSketch = startPhaseRef.current && !["grid","sketch"].includes(startPhaseRef.current);
+if (!skipSketch) {
+setPhase(PHASES[1]);
       setColorMix(colorMixSource.sketch);
       phaseStartMs = Date.now();
       speakIfNew("sketch");
@@ -896,14 +903,16 @@ export default function PaintingTimelapse({ guide, imageUrl, skillLevel = "inter
           skillLevel === "beginner" ? "pencil" : "brush"
         );
         setProgress(skPct);
-        if (skPct % 10 === 0) await new Promise(r => setTimeout(r, 120));
-        else await new Promise(r => setTimeout(r, 0));
+        await new Promise(r => setTimeout(r, 16));
       }
       renderFrame(PHASES[1], 100, null, null, 0, 0, null);
-      await new Promise(r => setTimeout(r, 2000));
+      await new Promise(r => setTimeout(r, 1000));
+} // end skipSketch
 
-      // ── 4. IMPRIMATURA ────────────────────────────────────
-      setPhase(PHASES[2]);
+     // ── 4. IMPRIMATURA ────────────────────────────────────────
+const skipImp = startPhaseRef.current && !["grid","sketch","imprimatura"].includes(startPhaseRef.current);
+if (!skipImp) {
+setPhase(PHASES[2]);
       setColorMix(colorMixSource.imprimatura);
       phaseStartMs = Date.now();
       speakIfNew("imprimatura");
@@ -936,9 +945,10 @@ export default function PaintingTimelapse({ guide, imageUrl, skillLevel = "inter
         await new Promise(r => setTimeout(r, 0));
       }
       renderFrame(PHASES[2], 100, null, null, 0, 0, null);
-      await new Promise(r => setTimeout(r, 3000));
+      await new Promise(r => setTimeout(r, 1500));
+} // end skipImp
 
-      // ── 5. PAINT STROKES — filtered by skill level ────────
+      // ── 5. PAINT STROKES
       const rawStrokes   = generateStrokes(width, height);
       const phaseOrder   = ["grisaille", "wetOnWet", "glaze", "scumble", "detail", "pixel"];
       const strokesByType = {};
@@ -947,13 +957,20 @@ export default function PaintingTimelapse({ guide, imageUrl, skillLevel = "inter
         strokesByType[s.type].push(s);
       }
 
-      // Filter stroke types based on skill level
       const activeStrokeTypes = cfg.strokeTypes;
-      const strokes = phaseOrder
-        .filter(type => activeStrokeTypes.includes(type))
-        .flatMap(type =>
-          groupStrokesByColor(strokesByType[type] ?? [], _pixels, width, height)
-        );
+const earlyPhases = ["grid", "sketch", "imprimatura"];
+const skipUntil = startPhaseRef.current ?? null;
+let phaseReached = skipUntil === null || earlyPhases.includes(skipUntil);
+const strokes = phaseOrder
+  .filter(type => activeStrokeTypes.includes(type))
+  .flatMap(type => {
+    if (!phaseReached) {
+      const phId = PHASES[PHASE_INDEX[type]]?.id;
+      if (phId === skipUntil) phaseReached = true;
+      else return [];
+    }
+    return groupStrokesByColor(strokesByType[type] ?? [], _pixels, width, height);
+  });
 
       const total     = strokes.length;
       let lastPhId    = "";
@@ -1017,7 +1034,7 @@ export default function PaintingTimelapse({ guide, imageUrl, skillLevel = "inter
       dCtx.fillText("Now try it on a real canvas! 🎨", width/2, height - finH/2 + fSz);
       dCtx.textAlign = "left";
       dCtx.restore();
-      await new Promise(r => setTimeout(r, 10000));
+      await new Promise(r => setTimeout(r, 3000));
       flushSpeech();
       recorder.stop();
       await recDone;
@@ -1052,7 +1069,8 @@ export default function PaintingTimelapse({ guide, imageUrl, skillLevel = "inter
 
   const reset = () => {
     if (videoUrl) URL.revokeObjectURL(videoUrl);
-    setStatus("idle"); setProgress(0); setPhase(null); setVideoUrl(null);
+    setStatus("idle"); setProgress(0); setPhase(null); setVideoUrl(null); setStartPhase(null);
+    setStartPhase(null); startPhaseRef.current = null;
   };
 
   // Skill level badge colors for UI
@@ -1166,16 +1184,48 @@ export default function PaintingTimelapse({ guide, imageUrl, skillLevel = "inter
       )}
 
       {/* IDLE */}
-      {status === "idle" && (
-        <button
-          onClick={generate}
-          className={`w-full flex items-center justify-center gap-2
-                     ${sc.btn} text-white font-semibold
-                     px-5 py-3 rounded-2xl shadow-md transition-all active:scale-95`}
-        >
-          🎬 Generate {cfg.label} Oil Painting Tutorial
-        </button>
+{(status === "idle" || status === "recording") && (
+  <div className="w-full space-y-3">
+    <div className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 space-y-2">
+      <p className="text-xs font-bold uppercase tracking-wide text-white/60">
+        ▶ Start from which phase?
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {activePhases.map(p => (
+          <button
+            key={p.id}
+            onClick={() => { if (status !== "recording") { setStartPhase(p.id); startPhaseRef.current = p.id; } }}
+className="text-xs px-3 py-1.5 rounded-full border transition-all"
+disabled={status === "recording"}
+style={{
+  borderColor: startPhase === p.id ? p.color : "rgba(255,255,255,0.15)",
+  backgroundColor: startPhase === p.id ? p.color + "33" : "transparent",
+  color: startPhase === p.id ? p.color : "rgba(255,255,255,0.55)",
+  fontWeight: startPhase === p.id ? "700" : "400",
+  opacity: status === "recording" ? 0.45 : 1,
+  cursor: status === "recording" ? "default" : "pointer",
+}}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+      {startPhase && (
+        <p className="text-xs text-white/40 italic">
+          Starting from: {activePhases.find(p => p.id === startPhase)?.label}
+        </p>
       )}
+    </div>
+    <button
+      onClick={generate}
+      className={`w-full flex items-center justify-center gap-2
+                 ${sc.btn} text-white font-semibold
+                 px-5 py-3 rounded-2xl shadow-md transition-all active:scale-95`}
+    >
+      🎬 Generate {cfg.label} Oil Painting Tutorial
+    </button>
+  </div>
+)}
 
       {/* RECORDING */}
       {status === "recording" && (
