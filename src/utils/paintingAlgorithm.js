@@ -154,7 +154,7 @@ export function drawImprimatura(ctx, width, height) {
   }
 
   // A few vertical variations for canvas texture
-  const vCount = Math.floor(width / 8);
+  const vCount = Math.floor(width / 4);
   for (let i = 0; i < vCount; i++) {
     const x     = Math.random() * width;
     const alpha = 0.015 + Math.random() * 0.030;
@@ -424,14 +424,27 @@ function mixColor(a, b, t) {
 
 function classicTemp(c) {
   const l = lum(c);
-  if (l < 100) return { r:clamp(c.r+18), g:clamp(c.g+4),  b:clamp(c.b-14) };
-  if (l > 180) return { r:clamp(c.r-8),  g:clamp(c.g+2),  b:clamp(c.b+16) };
-  return c;
+  // Shadow: warm (burnt umber feel)
+  if (l < 85)  return { r:clamp(c.r+28), g:clamp(c.g+8),  b:clamp(c.b-20) };
+  // Highlight: cool (sky light feel)
+  if (l > 170) return { r:clamp(c.r-12), g:clamp(c.g+4),  b:clamp(c.b+24) };
+  // Midtone: neutral, slight warm
+  return { r:clamp(c.r+6), g:clamp(c.g+2), b:clamp(c.b-4) };
 }
 
 function toGrisaille(c) {
   const g = lum(c);
-  return { r:clamp(g*0.85+30), g:clamp(g*0.80+18), b:clamp(g*0.70+5) };
+  // Hard 3-zone separation: shadow / midtone / highlight
+  if (g < 80) {
+    // Shadow — push darker, cooler
+    return { r:clamp(g*0.60+8), g:clamp(g*0.55+5), b:clamp(g*0.50+3) };
+  } else if (g < 170) {
+    // Midtone — warm sepia brown
+    return { r:clamp(g*0.88+22), g:clamp(g*0.75+14), b:clamp(g*0.58+6) };
+  } else {
+    // Highlight — push brighter, slightly cool
+    return { r:clamp(g*0.95+18), g:clamp(g*0.92+16), b:clamp(g*0.88+14) };
+  }
 }
 
 // ── Stroke generator ───────────────────────────────────────
@@ -513,15 +526,29 @@ export function paintStroke(ctx, offCtx, stroke, W, H) {
 
   if (type === "grisaille") {
     const g = toGrisaille(src);
+    // Main stroke — mas makapal at elongated para mukhang bristle
     const gr = ctx.createRadialGradient(0,0,0,0,0,size);
-    gr.addColorStop(0,    `rgba(${g.r},${g.g},${g.b},0.55)`);
-    gr.addColorStop(0.65, `rgba(${g.r},${g.g},${g.b},0.38)`);
+    gr.addColorStop(0,    `rgba(${g.r},${g.g},${g.b},0.82)`);
+    gr.addColorStop(0.50, `rgba(${g.r},${g.g},${g.b},0.60)`);
+    gr.addColorStop(0.85, `rgba(${g.r},${g.g},${g.b},0.22)`);
     gr.addColorStop(1,    `rgba(${g.r},${g.g},${g.b},0)`);
-    ctx.beginPath(); ctx.ellipse(0,0,size*1.8,size*.5,0,0,Math.PI*2);
+    ctx.beginPath(); ctx.ellipse(0,0,size*2.2,size*.45,0,0,Math.PI*2);
     ctx.fillStyle = gr; ctx.fill();
-    const dk = toGrisaille({r:src.r*.6,g:src.g*.6,b:src.b*.6});
-    ctx.beginPath(); ctx.ellipse(0,size*.15,size*1.5,size*.22,0,0,Math.PI*2);
-    ctx.fillStyle = `rgba(${dk.r},${dk.g},${dk.b},0.18)`; ctx.fill();
+    // Bristle texture — 3 thin lines sa ibabaw ng stroke
+    for (let b = -1; b <= 1; b++) {
+      const bOff = b * size * 0.18;
+      ctx.beginPath();
+      ctx.moveTo(-size*1.8, bOff);
+      ctx.lineTo(size*1.8, bOff + (Math.random()-.5)*size*.15);
+      ctx.strokeStyle = `rgba(${g.r},${g.g},${g.b},${0.12 + Math.random()*0.10})`;
+      ctx.lineWidth = 0.8 + Math.random()*0.6;
+      ctx.lineCap = "round";
+      ctx.stroke();
+    }
+    // Shadow edge — para may depth
+    const dk = toGrisaille({r:src.r*.5,g:src.g*.5,b:src.b*.5});
+    ctx.beginPath(); ctx.ellipse(size*.2,size*.2,size*1.6,size*.2,0,0,Math.PI*2);
+    ctx.fillStyle = `rgba(${dk.r},${dk.g},${dk.b},0.28)`; ctx.fill();
   }
 
   else if (type === "wetOnWet") {
@@ -529,9 +556,9 @@ export function paintStroke(ctx, offCtx, stroke, W, H) {
     const wet = cv.a > 10 ? 0.45 : 0.75;
     const bl  = mixColor(cv, classicTemp(src), wet);
     const gr  = ctx.createRadialGradient(0,0,0,0,0,size*1.3);
-    gr.addColorStop(0,    `rgba(${bl.r},${bl.g},${bl.b},0.50)`);
-    gr.addColorStop(0.55, `rgba(${bl.r},${bl.g},${bl.b},0.35)`);
-    gr.addColorStop(0.80, `rgba(${bl.r},${bl.g},${bl.b},0.15)`);
+    gr.addColorStop(0,    `rgba(${bl.r},${bl.g},${bl.b},0.75)`);
+    gr.addColorStop(0.55, `rgba(${bl.r},${bl.g},${bl.b},0.52)`);
+    gr.addColorStop(0.80, `rgba(${bl.r},${bl.g},${bl.b},0.22)`);
     gr.addColorStop(1,    `rgba(${bl.r},${bl.g},${bl.b},0)`);
     ctx.beginPath(); ctx.ellipse(0,0,size*2,size*.55,0,0,Math.PI*2);
     ctx.fillStyle = gr; ctx.fill();
@@ -604,21 +631,59 @@ export function paintStroke(ctx, offCtx, stroke, W, H) {
 
   else if (type === "detail") {
     const l = lum(src);
-    if (l > 55 && l < 188) { ctx.restore(); return; }
-    if (lum(src) > 200) {
-      const ic = { r:clamp(src.r+30), g:clamp(src.g+28), b:clamp(src.b+22) };
-      ctx.beginPath(); ctx.ellipse(0,0,size*1.3,size*.55,0,0,Math.PI*2);
-      ctx.fillStyle = `rgba(${ic.r},${ic.g},${ic.b},0.80)`; ctx.fill();
-      ctx.beginPath(); ctx.ellipse(0,0,size*.7,size*.3,0,0,Math.PI*2);
-      ctx.fillStyle = `rgba(255,255,255,0.15)`; ctx.fill();
+    // Skip midtones — only highlights and deep shadows
+    if (l > 60 && l < 185) { ctx.restore(); return; }
+
+    if (l >= 185) {
+      // HIGHLIGHT IMPASTO — thick, textured white foam
+      const ic = {
+        r: clamp(src.r + 45),
+        g: clamp(src.g + 42),
+        b: clamp(src.b + 38),
+      };
+      // Thick base — like palette knife stroke
+      ctx.beginPath();
+      ctx.ellipse(0, 0, size*1.8, size*.45, 0, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(${ic.r},${ic.g},${ic.b},0.72)`;
+      ctx.fill();
+      // Bright core — pure white center
+      ctx.beginPath();
+      ctx.ellipse(0, 0, size*.9, size*.22, 0, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(255,255,255,0.70)`;
+      ctx.fill();
+      // Bristle drag marks — subtle, only 30% of strokes
+if (Math.random() < 0.30) {
+  for (let b = 0; b < 2; b++) {
+    const oy = (b / 1 - 0.5) * size * 0.5;
+    ctx.beginPath();
+    ctx.moveTo(-size*1.4, oy + (Math.random()-0.5)*1.5);
+    ctx.lineTo(size*1.4,  oy + (Math.random()-0.5)*1.5);
+    ctx.strokeStyle = `rgba(255,255,255,${0.12 + Math.random()*0.15})`;
+    ctx.lineWidth = 0.4 + Math.random()*0.6;
+    ctx.lineCap = "round";
+    ctx.stroke();
+  }
+}
+      // Edge shadow — gives 3D thickness to the impasto
+      ctx.beginPath();
+      ctx.ellipse(0, size*.28, size*1.5, size*.18, 0, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(180,200,220,0.20)`;
+      ctx.fill();
     } else {
-      const c = classicTemp(src);
-      const gr = ctx.createRadialGradient(0,0,0,0,0,size);
-      gr.addColorStop(0,    `rgba(${c.r},${c.g},${c.b},0.65)`);
-      gr.addColorStop(0.60, `rgba(${c.r},${c.g},${c.b},0.45)`);
+      // DEEP SHADOW — cool dark, not muddy
+      const c = {
+        r: clamp(src.r * 0.55 + 8),
+        g: clamp(src.g * 0.52 + 6),
+        b: clamp(src.b * 0.65 + 12), // blue-cool shadows
+      };
+      const gr = ctx.createRadialGradient(0,0,0,0,0,size*1.2);
+      gr.addColorStop(0,    `rgba(${c.r},${c.g},${c.b},0.85)`);
+      gr.addColorStop(0.55, `rgba(${c.r},${c.g},${c.b},0.60)`);
       gr.addColorStop(1,    `rgba(${c.r},${c.g},${c.b},0)`);
-      ctx.beginPath(); ctx.ellipse(0,0,size*1.4,size*.55,0,0,Math.PI*2);
-      ctx.fillStyle = gr; ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(0,0,size*1.6,size*.50,0,0,Math.PI*2);
+      ctx.fillStyle = gr;
+      ctx.fill();
     }
   }
 
