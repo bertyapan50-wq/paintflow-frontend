@@ -494,7 +494,7 @@ export function paintStroke(ctx, offCtx, stroke, W, H) {
   if (diff < 18) return;
 
   // Sharp rectangular patch mula sa source — hindi blurry gradient
-  const patchSize = Math.max(2, Math.round(size * 0.8));
+  const patchSize = Math.max(1, Math.round(size * 0.3));
   const px = Math.max(0, Math.floor(cx - patchSize / 2));
   const py = Math.max(0, Math.floor(cy - patchSize / 2));
   const pw = Math.min(patchSize, W - px);
@@ -513,7 +513,7 @@ export function paintStroke(ctx, offCtx, stroke, W, H) {
     srcPatch.data[i]     = Math.round(cur.r + (cr - cur.r) * t);
     srcPatch.data[i + 1] = Math.round(cur.g + (cg - cur.g) * t);
     srcPatch.data[i + 2] = Math.round(cur.b + (cb - cur.b) * t);
-    srcPatch.data[i + 3] = Math.round(180 + t * 60); // semi-opaque
+    srcPatch.data[i + 3] = Math.round(120 + t * 40);// semi-opaque
   }
   ctx.putImageData(srcPatch, px, py);
   return;
