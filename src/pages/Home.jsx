@@ -109,6 +109,8 @@ function EmailInput({ value, onChange }) {
         />
         <input
           type="email"
+inputMode="email"
+autoComplete="email"
           placeholder="you@example.com"
           value={value}
           onChange={e => onChange(e.target.value)}
@@ -157,6 +159,10 @@ export default function Home() {
 
   /* ── API call ── */
   const handleImageSelected = async (file) => {
+    if (!customerEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail.trim())) {
+      alert("Please enter a valid email address before uploading.");
+      return;
+    }
     setIsLoading(true);
     setGuide(null);
     setLoadingPhase(0);
