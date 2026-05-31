@@ -141,11 +141,11 @@ async function generateStepSnapshots(imageBase64, stepCount) {
       if (i % 50 === 0) await new Promise(r => setTimeout(r, 0));
     }
     if (type === "pixel") {
-  paintCtx.globalAlpha = 0.22;
-  paintCtx.drawImage(img, 0, 0, width, height);
-  paintCtx.globalAlpha = 1;
-}
-snapshots.push(snap(sketchOpacityPerPhase[type] ?? 0));// index 3..8
+      paintCtx.globalAlpha = 0.22;
+      paintCtx.drawImage(img, 0, 0, width, height);
+      paintCtx.globalAlpha = 1;
+    }
+    snapshots.push(snap(sketchOpacityPerPhase[type] ?? 0));
   }
 
   // Trim or pad to stepCount
