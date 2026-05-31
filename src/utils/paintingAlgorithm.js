@@ -487,33 +487,37 @@ export function paintStroke(ctx, offCtx, stroke, W, H) {
   const cy = Math.max(0, Math.min(y, H-1));
 
   if (type === "pixel") {
-    const src = sampleColor(offCtx, cx, cy, size, W, H);
-    const cur = sampleCanvas(ctx, cx, cy, W, H);
+  const src = sampleColor(offCtx, cx, cy, size, W, H);
+  const cur = sampleCanvas(ctx, cx, cy, W, H);
 
-    // Skip if color is already close — no correction needed
-    const diff = Math.abs(src.r - cur.r) + Math.abs(src.g - cur.g) + Math.abs(src.b - cur.b);
-    if (diff < 28) return; // ← ~60% of strokes will be skipped
+  const diff = Math.abs(src.r - cur.r) + Math.abs(src.g - cur.g) + Math.abs(src.b - cur.b);
+  if (diff < 18) return;
 
-    // Soft blend toward reference — doesn't erase the painting
-    const t = Math.min(0.60, diff / 280);
-    const c = {
-      r: Math.round(cur.r + (src.r - cur.r) * t),
-      g: Math.round(cur.g + (src.g - cur.g) * t),
-      b: Math.round(cur.b + (src.b - cur.b) * t),
-    };
-    ctx.save();
-    ctx.translate(x, y);
-    const gr = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 1.5);
-    gr.addColorStop(0,   `rgba(${c.r},${c.g},${c.b},0.55)`);
-    gr.addColorStop(0.6, `rgba(${c.r},${c.g},${c.b},0.28)`);
-    gr.addColorStop(1,   `rgba(${c.r},${c.g},${c.b},0)`);
-    ctx.beginPath();
-    ctx.arc(0, 0, size * 1.5, 0, Math.PI * 2);
-    ctx.fillStyle = gr;
-    ctx.fill();
-    ctx.restore();
-    return;
+  // Sharp rectangular patch mula sa source — hindi blurry gradient
+  const patchSize = Math.max(2, Math.round(size * 0.8));
+  const px = Math.max(0, Math.floor(cx - patchSize / 2));
+  const py = Math.max(0, Math.floor(cy - patchSize / 2));
+  const pw = Math.min(patchSize, W - px);
+  const ph = Math.min(patchSize, H - py);
+  if (pw <= 0 || ph <= 0) return;
+
+  // Sample directly from source image data
+  const srcPatch = offCtx.getImageData(px, py, pw, ph);
+
+  // Blend: paint layer stays, pero source colors lumalabas
+  const t = Math.min(0.72, diff / 220);
+  for (let i = 0; i < srcPatch.data.length; i += 4) {
+    const cr = srcPatch.data[i];
+    const cg = srcPatch.data[i + 1];
+    const cb = srcPatch.data[i + 2];
+    srcPatch.data[i]     = Math.round(cur.r + (cr - cur.r) * t);
+    srcPatch.data[i + 1] = Math.round(cur.g + (cg - cur.g) * t);
+    srcPatch.data[i + 2] = Math.round(cur.b + (cb - cur.b) * t);
+    srcPatch.data[i + 3] = Math.round(180 + t * 60); // semi-opaque
   }
+  ctx.putImageData(srcPatch, px, py);
+  return;
+}
 
   if (angle === null) {
     angle = edgeAngle(offCtx, cx, cy, W, H) + (Math.random()-.5)*.45;
