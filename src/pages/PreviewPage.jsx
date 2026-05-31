@@ -394,28 +394,6 @@ export default function PreviewPage() {
     "Almost ready — generating previews…",
   ];
 
-  /* Generate a step image via backend (no token needed — free route) */
-  const fetchStepImage = async (prompt, index) => {
-    try {
-      const strength = 0.35 + (index / 10) * 0.55; // increases per step
-      const res = await fetch(`${API_URL}/api/generate-image-img2img`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: `${prompt}, oil painting tutorial step ${index + 1}, painterly, linen canvas texture`,
-          strength,
-          seed: 42 + index,
-          token: "free-preview", // backend will need a small update OR we can use pollinations directly
-        }),
-      });
-      if (!res.ok) throw new Error("Image gen failed");
-      const data = await res.json();
-      return data.image;
-    } catch {
-      return null; // silently fail — show placeholder
-    }
-  };
-
   /* Use backend proxy for free preview (avoids CORS 403) */
   const fetchStepImageFree = async (prompt, index) => {
     try {
@@ -428,27 +406,12 @@ export default function PreviewPage() {
       const fullPrompt = `${stageHint} ${prompt}, oil painting tutorial illustration, linen canvas`;
       const res = await fetch(`${API_URL}/api/generate-image-img2img`, {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json", 
-          "x-free-preview": "true" 
+        headers: {
+          "Content-Type": "application/json",
+          "x-free-preview": "true",
         },
-        body: JSON.stringify({ 
-          prompt: fullPrompt, 
-          strength: 0.35 + (index / 10) * 0.55,
-          seed: 42 + index,
-          imageBase64: imageUrl,
-        }),
-      });
-        method: "POST",body: JSON.stringify({ 
-          prompt: fullPrompt, 
-          strength: 0.35 + (index / 10) * 0.55,
-          seed: 42 + index,
-          imageBase64: imageUrl,
-        }),
-      });
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          prompt: fullPrompt, 
+        body: JSON.stringify({
+          prompt: fullPrompt,
           strength: 0.35 + (index / 10) * 0.55,
           seed: 42 + index,
           imageBase64: imageUrl,
@@ -497,27 +460,33 @@ export default function PreviewPage() {
       const data = await res.json();
 
       const steps = (data.steps || []).map((s, i) => ({
-        title:       s.title        || `Step ${i + 1}`,
-        description: s.description  || "",
-        tip:         s.tip          || "",
-        colors:      s.colors       || [],
+        title:        s.title        || `Step ${i + 1}`,
+        description:  s.description  || "",
+        tip:          s.tip          || "",
+        colors:       s.colors       || [],
         image_prompt: s.image_prompt || s.title || "",
       }));
 
       setTutorial({ ...data, steps });
-      // Initialize step images array with nulls
       setStepImages(new Array(steps.length).fill(null));
       setPhase("steps");
 
-      // Load images for all steps in background
-      steps.forEach(async (step, i) => {
-        const img = await fetchStepImageFree(step.image_prompt || step.title, i);
-        setStepImages(prev => {
-          const updated = [...prev];
-          updated[i] = img;
-          return updated;
-        });
-      });
+      // Load images sequentially — avoids Pollinations rate limit
+      (async () => {
+        for (let i = 0; i < steps.length; i++) {
+          const img = await fetchStepImageFree(
+            steps[i].image_prompt || steps[i].title, i
+          );
+          setStepImages(prev => {
+            const updated = [...prev];
+            updated[i] = img;
+            return updated;
+          });
+          if (i < steps.length - 1) {
+            await new Promise(r => setTimeout(r, 800));
+          }
+        }
+      })();
 
     } catch (err) {
       alert("Something went wrong. Please try again!");
@@ -887,9 +856,7 @@ export default function PreviewPage() {
                     style={{
                       display: "flex", alignItems: "center", gap: 8,
                       padding: "12px 28px", borderRadius: 99,
-                      background: currentStep === tutorial.steps.length - 1
-                        ? `linear-gradient(135deg, ${C.sienna}, #a05a28)`
-                        : `linear-gradient(135deg, ${C.sienna}, #a05a28)`,
+                      background: `linear-gradient(135deg, ${C.sienna}, #a05a28)`,
                       color: "#fff", fontSize: 14, fontWeight: 600,
                       border: "none", cursor: "pointer",
                       boxShadow: `0 4px 20px ${C.sienna}40`,
