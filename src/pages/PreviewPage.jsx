@@ -416,7 +416,7 @@ export default function PreviewPage() {
     }
   };
 
-  /* Use Pollinations directly for free preview (no token needed) */
+  /* Use backend proxy for free preview (avoids CORS 403) */
   const fetchStepImageFree = async (prompt, index) => {
     try {
       const stageHint =
@@ -426,16 +426,37 @@ export default function PreviewPage() {
         index < 8  ? "nearly finished oil painting, adding detail," :
                      "finished oil painting, rich impasto texture,";
       const fullPrompt = `${stageHint} ${prompt}, oil painting tutorial illustration, linen canvas`;
-      const encoded = encodeURIComponent(fullPrompt);
-      const url = `https://image.pollinations.ai/prompt/${encoded}?width=512&height=512&nologo=true&model=flux&seed=${42 + index}`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("Pollinations failed");
-      const blob = await res.blob();
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.readAsDataURL(blob);
+      const res = await fetch(`${API_URL}/api/generate-image-img2img`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json", 
+          "x-free-preview": "true" 
+        },
+        body: JSON.stringify({ 
+          prompt: fullPrompt, 
+          strength: 0.35 + (index / 10) * 0.55,
+          seed: 42 + index,
+          imageBase64: imageUrl,
+        }),
       });
+        method: "POST",body: JSON.stringify({ 
+          prompt: fullPrompt, 
+          strength: 0.35 + (index / 10) * 0.55,
+          seed: 42 + index,
+          imageBase64: imageUrl,
+        }),
+      });
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          prompt: fullPrompt, 
+          strength: 0.35 + (index / 10) * 0.55,
+          seed: 42 + index,
+          imageBase64: imageUrl,
+        }),
+      });
+      if (!res.ok) throw new Error("Preview image failed");
+      const data = await res.json();
+      return data.image;
     } catch {
       return null;
     }
