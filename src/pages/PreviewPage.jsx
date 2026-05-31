@@ -66,38 +66,67 @@ async function generateStepSnapshots(imageBase64, stepCount) {
 
   const snapshots = [];
 
-  const snap = () => paintCanvas.toDataURL("image/jpeg", 0.82);
+  // ── Composite canvas: used only for snapshotting ───────
+  // We keep a separate "sketch" canvas so we can composite
+  // it on top of the paint layer for early phases.
+  const sketchCanvas = document.createElement("canvas");
+  sketchCanvas.width = width;
+  sketchCanvas.height = height;
+  const sketchCtx = sketchCanvas.getContext("2d");
+
+  const snap = (sketchOpacity = 0) => {
+    // If sketchOpacity > 0, composite sketch over paint layer
+    if (sketchOpacity > 0) {
+      const composite = document.createElement("canvas");
+      composite.width = width;
+      composite.height = height;
+      const cCtx = composite.getContext("2d");
+      cCtx.drawImage(paintCanvas, 0, 0);
+      cCtx.globalAlpha = sketchOpacity;
+      cCtx.drawImage(sketchCanvas, 0, 0);
+      cCtx.globalAlpha = 1;
+      return composite.toDataURL("image/jpeg", 0.82);
+    }
+    return paintCanvas.toDataURL("image/jpeg", 0.82);
+  };
 
   // ── Phase 0: Grid ─────────────────────────────────────
   paintCtx.fillStyle = "#f8f4ee";
   paintCtx.fillRect(0, 0, width, height);
   paintCtx.drawImage(img, 0, 0, width, height);
-  // Overlay semi-transparent grid
   paintCtx.globalAlpha = 0.55;
   paintCtx.fillStyle = "#f8f4ee";
   paintCtx.fillRect(0, 0, width, height);
   paintCtx.globalAlpha = 1;
   drawGrid(paintCtx, width, height, 6, 6, "rgba(99,102,241,0.55)");
-  snapshots.push(snap()); // index 0
+  snapshots.push(snap()); // index 0 — no sketch overlay needed
 
   // ── Phase 1: Sketch ───────────────────────────────────
+  // Draw sketch on its own canvas so we can reuse it later
   paintCtx.fillStyle = "#f8f4ee";
   paintCtx.fillRect(0, 0, width, height);
   drawGrid(paintCtx, width, height, 6, 6, "rgba(99,102,241,0.18)");
   const sketchStrokes = generateSketchStrokes(width, height, srcCtx);
   for (const s of sketchStrokes) paintSketchStroke(paintCtx, s);
+  // Save sketch separately for compositing
+  sketchCtx.clearRect(0, 0, width, height);
+  sketchCtx.drawImage(paintCanvas, 0, 0);
   snapshots.push(snap()); // index 1
 
   // ── Phase 2: Imprimatura ──────────────────────────────
-  // Keep sketch underneath, add warm wash
+  // Start fresh paint layer, sketch composited on top at 0.55
+  paintCtx.fillStyle = "#f8f4ee";
+  paintCtx.fillRect(0, 0, width, height);
   paintCtx.fillStyle = "rgba(192,120,64,0.48)";
   paintCtx.fillRect(0, 0, width, height);
   drawImprimatura(paintCtx, width, height);
-  snapshots.push(snap()); // index 2
+  snapshots.push(snap(0.55)); // index 2 — sketch visible through wash
 
   // ── Phases 3-8: Progressive painting strokes ─────────
   const allStrokes = generateStrokes(width, height);
   const phaseOrder = ["grisaille", "wetOnWet", "glaze", "scumble", "detail", "pixel"];
+  // Sketch opacity fades as painting progresses: grisaille=0.40, wetOnWet=0.20, rest=0
+  const sketchOpacityPerPhase = { grisaille: 0.40, wetOnWet: 0.18, glaze: 0, scumble: 0, detail: 0, pixel: 0 };
   const strokesByType = {};
   for (const s of allStrokes) {
     if (!strokesByType[s.type]) strokesByType[s.type] = [];
@@ -107,12 +136,11 @@ async function generateStepSnapshots(imageBase64, stepCount) {
   for (let pi = 0; pi < phaseOrder.length; pi++) {
     const type = phaseOrder[pi];
     const strokes = strokesByType[type] ?? [];
-    // Paint in batches — yield to browser every 50 strokes
     for (let i = 0; i < strokes.length; i++) {
       paintStroke(paintCtx, srcCtx, strokes[i], width, height);
       if (i % 50 === 0) await new Promise(r => setTimeout(r, 0));
     }
-    snapshots.push(snap()); // index 3..8
+    snapshots.push(snap(sketchOpacityPerPhase[type] ?? 0)); // index 3..8
   }
 
   // Trim or pad to stepCount
