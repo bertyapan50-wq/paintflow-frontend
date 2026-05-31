@@ -133,15 +133,31 @@ async function generateStepSnapshots(imageBase64, stepCount) {
     strokesByType[s.type].push(s);
   }
 
-  for (let pi = 0; pi < phaseOrder.length; pi++) {
-    const type = phaseOrder[pi];
-    const strokes = strokesByType[type] ?? [];
-    for (let i = 0; i < strokes.length; i++) {
-      paintStroke(paintCtx, srcCtx, strokes[i], width, height);
-      if (i % 50 === 0) await new Promise(r => setTimeout(r, 0));
-    }
-    snapshots.push(snap(sketchOpacityPerPhase[type] ?? 0)); // index 3..8
+   for (let pi = 0; pi < phaseOrder.length; pi++) {
+  const type = phaseOrder[pi];
+  const strokes = strokesByType[type] ?? [];
+  for (let i = 0; i < strokes.length; i++) {
+    paintStroke(paintCtx, srcCtx, strokes[i], width, height);
+    if (i % 50 === 0) await new Promise(r => setTimeout(r, 0));
   }
+
+  // ── Extra passes para sa pixel (final refinement) phase ──
+  if (type === "pixel") {
+    // Pass 1: extra scumble para mapunan ang gaps
+    const extraScumble = (strokesByType["scumble"] ?? []).slice(0, 80);
+    for (const s of extraScumble) paintStroke(paintCtx, srcCtx, s, width, height);
+    await new Promise(r => setTimeout(r, 0));
+
+    // Pass 2 & 3: double detail pass para sa crisp final look
+    const extraDetail = (strokesByType["detail"] ?? []).slice(0, 120);
+    for (const s of extraDetail) paintStroke(paintCtx, srcCtx, s, width, height);
+    await new Promise(r => setTimeout(r, 0));
+    for (const s of extraDetail) paintStroke(paintCtx, srcCtx, s, width, height);
+    await new Promise(r => setTimeout(r, 0));
+  }
+
+  snapshots.push(snap(sketchOpacityPerPhase[type] ?? 0));
+}
 
   // Trim or pad to stepCount
   const result = [];
