@@ -336,15 +336,29 @@ function CompletedBanner({ title, onReset }) {
         You just previewed <strong style={{ color: C.ochre }}>"{title}"</strong>. Want full narrated video, advanced techniques, and more detail?
       </p>
       <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-        <a href="/" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 28px", borderRadius: 99, background: `linear-gradient(135deg, ${C.sienna}, #a05a28)`, color: "#fff", fontSize: 14, fontWeight: 600, textDecoration: "none", boxShadow: `0 4px 24px ${C.sienna}40` }}>
-          <Brush size={15} /> Get Full Tutorial — $2.99
-        </a>
+        <button onClick={async () => { const link = await createCheckoutLink(); window.location.href = link; }}
+  style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 28px", borderRadius: 99, background: `linear-gradient(135deg, ${C.sienna}, #a05a28)`, color: "#fff", fontSize: 14, fontWeight: 600, border: "none", cursor: "pointer", boxShadow: `0 4px 24px ${C.sienna}40` }}>
+  <Brush size={15} /> Get Full Tutorial — $2.99
+</button>
         <button onClick={onReset} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 24px", borderRadius: 99, background: "rgba(255,255,255,0.05)", border: `1px solid ${C.border}`, color: C.muted, fontSize: 14, cursor: "pointer" }}>
           Try Another Photo
         </button>
       </div>
     </motion.div>
   );
+}
+async function createCheckoutLink() {
+  try {
+    const res = await fetch(`${API_URL}/api/create-payment`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ skillLevel: "advanced" }),
+    });
+    const data = await res.json();
+    return data.payment_link;
+  } catch {
+    return "https://paintflowai.com/#pricing";
+  }
 }
 
 /* ══ MAIN PAGE ══ */
@@ -464,9 +478,10 @@ export default function PreviewPage() {
               <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 12px", borderRadius: 99, border: `1px solid ${C.sienna}40`, background: `${C.sienna}12`, color: C.ochre, fontSize: 11, fontWeight: 600, letterSpacing: "0.04em" }}>
                 ✨ Free
               </span>
-              <a href="/" style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 14px", borderRadius: 99, background: `linear-gradient(135deg, ${C.sienna}, #a05a28)`, color: "#fff", fontSize: 11, fontWeight: 600, textDecoration: "none", boxShadow: `0 2px 12px ${C.sienna}40` }}>
-                Get Full Tutorial →
-              </a>
+              <button onClick={async () => { const link = await createCheckoutLink(); window.location.href = link; }}
+  style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 14px", borderRadius: 99, background: `linear-gradient(135deg, ${C.sienna}, #a05a28)`, color: "#fff", fontSize: 11, fontWeight: 600, border: "none", cursor: "pointer", boxShadow: `0 2px 12px ${C.sienna}40` }}>
+  Get Full Tutorial →
+</button>
             </div>
           </div>
           <Divider />
@@ -607,9 +622,10 @@ export default function PreviewPage() {
                     <p style={{ fontSize: 13, color: C.ochre, fontWeight: 600, margin: "0 0 2px" }}>🎙️ Want narrated video + advanced detail?</p>
                     <p style={{ fontSize: 12, color: C.muted, margin: 0 }}>Upgrade for full AI-narrated video tutorial, color mixing ratios & more.</p>
                   </div>
-                  <a href="/" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 20px", borderRadius: 99, background: `linear-gradient(135deg, ${C.sienna}, #a05a28)`, color: "#fff", fontSize: 12, fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap", boxShadow: `0 2px 12px ${C.sienna}35` }}>
-                    Unlock Full Tutorial — $2.99
-                  </a>
+                  <button onClick={async () => { const link = await createCheckoutLink(); window.location.href = link; }}
+  style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 20px", borderRadius: 99, background: `linear-gradient(135deg, ${C.sienna}, #a05a28)`, color: "#fff", fontSize: 12, fontWeight: 600, border: "none", cursor: "pointer", whiteSpace: "nowrap", boxShadow: `0 2px 12px ${C.sienna}35` }}>
+  Unlock Full Tutorial — $2.99
+</button>
                 </motion.div>
               </motion.div>
             )}
