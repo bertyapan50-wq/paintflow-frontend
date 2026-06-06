@@ -3,6 +3,7 @@
 import API_URL from "../lib/api";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Brush, Film, RotateCcw } from "lucide-react";
 import ImageUploader from "../components/paint-guide/ImageUploader";
 import GuideDisplay from "../components/paint-guide/GuideDisplay";
 import LoadingGuide from "../components/paint-guide/LoadingGuide";
