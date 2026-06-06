@@ -3,7 +3,6 @@
 import API_URL from "../lib/api";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Brush, Film, RotateCcw, Mail } from "lucide-react";
 import ImageUploader from "../components/paint-guide/ImageUploader";
 import GuideDisplay from "../components/paint-guide/GuideDisplay";
 import LoadingGuide from "../components/paint-guide/LoadingGuide";
@@ -61,86 +60,7 @@ const SKILL_BADGES = {
   advanced:     { label: "Advanced",     emoji: "🔥", accent: "#c84a3a" },
 };
 
-/* ── Email Input Component ── */
-function EmailInput({ value, onChange }) {
-  const [focused, setFocused] = useState(false);
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.45 }}
-      style={{ maxWidth: 420, margin: "0 auto 24px" }}
-    >
-      <label style={{
-        display: "block",
-        fontSize: 11,
-        color: C.muted,
-        letterSpacing: "0.08em",
-        textTransform: "uppercase",
-        fontWeight: 600,
-        marginBottom: 8,
-      }}>
-        Your Email <span style={{ color: C.sienna }}>*</span>
-        <span style={{ color: `${C.muted}80`, fontWeight: 400, textTransform: "none", letterSpacing: 0, marginLeft: 6 }}>
-          — for your tutorial confirmation
-        </span>
-      </label>
-
-      <div style={{
-        position: "relative",
-        display: "flex",
-        alignItems: "center",
-        borderRadius: 12,
-        border: `1px solid ${focused ? C.sienna : C.border}`,
-        background: focused ? `${C.sienna}08` : "rgba(255,255,255,0.03)",
-        transition: "all 0.2s",
-        boxShadow: focused ? `0 0 20px ${C.sienna}20` : "none",
-      }}>
-        <Mail
-          size={15}
-          style={{
-            position: "absolute",
-            left: 14,
-            color: focused ? C.sienna : C.muted,
-            transition: "color 0.2s",
-            pointerEvents: "none",
-          }}
-        />
-        <input
-          type="email"
-inputMode="email"
-autoComplete="email"
-          placeholder="you@example.com"
-          value={value}
-          onChange={e => onChange(e.target.value)}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
-          style={{
-            width: "100%",
-            padding: "12px 14px 12px 38px",
-            background: "transparent",
-            border: "none",
-            outline: "none",
-            color: C.cream,
-            fontSize: 14,
-            fontFamily: "'DM Sans', sans-serif",
-            letterSpacing: "0.01em",
-          }}
-        />
-      </div>
-
-      <p style={{
-        fontSize: 11,
-        color: `${C.muted}70`,
-        marginTop: 6,
-        letterSpacing: "0.02em",
-      }}>
-        We'll send your receipt here. No spam, ever.
-      </p>
-    </motion.div>
-  );
-}
 
 export default function Home() {
   const [showApp, setShowApp]           = useState(false);
@@ -149,20 +69,43 @@ export default function Home() {
   const [imageUrl, setImageUrl]         = useState(null);
   const [isLoading, setIsLoading]       = useState(false);
   const [loadingPhase, setLoadingPhase] = useState(0);
-  const [customerEmail, setCustomerEmail] = useState("");
+const [paymentLoading, setPaymentLoading] = useState(false);
 
-  const medium = "oil";
+const medium = "oil";
 
-  if (!showApp) {
-    return <LandingPage onGetStarted={() => setShowApp(true)} />;
+const handleGetStarted = async (planType) => {
+  if (!planType) { setShowApp(true); return; }
+  setPaymentLoading(true);
+  try {
+    const endpoint = planType === "subscription"
+      ? `${API_URL}/api/create-subscription`
+      : `${API_URL}/api/create-payment`;
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ skillLevel, customerName: "PaintFlow User" }),
+    });
+    const data = await res.json();
+    if (data.payment_link) {
+      window.location.href = data.payment_link;
+    } else {
+      alert("Could not create payment. Please try again.");
+    }
+  } catch (err) {
+    console.error("❌ Payment error:", err);
+    alert("Payment error. Please try again.");
+  } finally {
+    setPaymentLoading(false);
   }
+};
+
+if (!showApp) {
+  return <LandingPage onGetStarted={handleGetStarted} paymentLoading={paymentLoading} />;
+}
 
   /* ── API call ── */
   const handleImageSelected = async (file) => {
-    if (!customerEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail.trim())) {
-      alert("Please enter a valid email address before uploading.");
-      return;
-    }
+    
     setIsLoading(true);
     setGuide(null);
     setLoadingPhase(0);
@@ -183,7 +126,7 @@ export default function Home() {
           imageBase64,
           medium,
           skillLevel,
-          customerEmail: customerEmail.trim() || undefined,
+        
         }),
       });
 
@@ -421,8 +364,7 @@ export default function Home() {
 
                 <Divider style={{ marginBottom: 40 }} />
 
-                {/* ── Email Input ── */}
-                <EmailInput value={customerEmail} onChange={setCustomerEmail} />
+             
 
                 {/* ── Image Uploader ── */}
                 <motion.div
@@ -473,7 +415,7 @@ export default function Home() {
                   imageUrl={imageUrl}
                   onReset={handleReset}
                   skillLevel={skillLevel}
-                  customerEmail={customerEmail}
+                  
                 />
               </motion.div>
             )}
