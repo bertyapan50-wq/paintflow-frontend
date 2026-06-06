@@ -3,6 +3,78 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Brush, Film, Sparkles, ArrowRight, ChevronDown, BookOpen, Layers, Palette, Eye, Check, Zap } from "lucide-react";
 
+/* ─── EFFECT 3: Floating Paint Dust Particles ───────────────── */
+function PaintParticles() {
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const COLORS = ["#c8793a", "#e8b86d", "#8b4513", "#7a9ab5", "#a05a28", "#f0d090", "#4a6741"];
+    let w, h, particles, raf;
+
+    const resize = () => {
+      w = canvas.width = canvas.offsetWidth;
+      h = canvas.height = canvas.offsetHeight;
+    };
+
+    const spawn = () => ({
+      x: Math.random() * w,
+      y: h + Math.random() * 20,
+      r: 1.2 + Math.random() * 2.8,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      speed: 0.25 + Math.random() * 0.45,
+      drift: (Math.random() - 0.5) * 0.35,
+      alpha: 0,
+      fadeIn: 0.008 + Math.random() * 0.01,
+      maxAlpha: 0.25 + Math.random() * 0.35,
+    });
+
+    resize();
+    particles = Array.from({ length: 35 }, () => {
+      const p = spawn();
+      p.y = Math.random() * h;
+      p.alpha = Math.random() * p.maxAlpha;
+      return p;
+    });
+
+    const tick = () => {
+      ctx.clearRect(0, 0, w, h);
+      particles.forEach((p, i) => {
+        p.y -= p.speed;
+        p.x += p.drift;
+        p.alpha = Math.min(p.alpha + p.fadeIn, p.maxAlpha);
+        if (p.y < -10) particles[i] = spawn();
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.alpha;
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      raf = requestAnimationFrame(tick);
+    };
+
+    tick();
+    window.addEventListener("resize", resize);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: "absolute",
+        top: 0, left: 0,
+        width: "100%",
+        height: "100%",
+        pointerEvents: "none",
+        zIndex: 1,
+      }}
+    />
+  );
+}
+
 /* ─── Background Component ─────────────────────────────────── */
 function AtelierBackground() {
   return (
@@ -63,13 +135,38 @@ const HOW_STEPS = [
 
 const SWATCHES = ["#c8793a", "#e8b86d", "#8b4513", "#7a9ab5", "#4a6741", "#2c1810"];
 
+/* ─── EFFECT 4: Swatch Pulse + Hover Glow ───────────────────── */
 function PaintSwatches() {
   return (
     <div className="flex gap-1 items-center">
-      {SWATCHES.map((c) => (
-        <div key={c} className="rounded-full border border-white/10"
-          style={{ width: 10, height: 10, backgroundColor: c }} />
+      {SWATCHES.map((c, i) => (
+        <div
+          key={c}
+          className="rounded-full border border-white/10 transition-transform duration-300"
+          style={{
+            width: 10,
+            height: 10,
+            backgroundColor: c,
+            animation: `swatchPulse 3s ease-in-out ${i * 0.4}s infinite`,
+            cursor: "pointer",
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.transform = "scale(1.7)";
+            e.currentTarget.style.boxShadow = `0 0 8px ${c}99`;
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.transform = "scale(1)";
+            e.currentTarget.style.boxShadow = "none";
+          }}
+        />
       ))}
+      {/* Inject keyframes once */}
+      <style>{`
+        @keyframes swatchPulse {
+          0%, 100% { box-shadow: 0 0 0px rgba(200,121,58,0); }
+          50% { box-shadow: 0 0 7px rgba(200,121,58,0.55); }
+        }
+      `}</style>
     </div>
   );
 }
@@ -141,7 +238,6 @@ function PricingCard({ plan, onGetStarted }) {
         boxShadow: isPopular ? "0 0 60px rgba(200,121,58,0.12)" : "none",
       }}
     >
-      {/* Badge */}
       {plan.badge && (
         <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
           <span className="px-4 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase text-white"
@@ -151,7 +247,6 @@ function PricingCard({ plan, onGetStarted }) {
         </div>
       )}
 
-      {/* Header */}
       <div className="space-y-2">
         <p className="text-[10px] tracking-[0.2em] uppercase font-semibold" style={{ color: plan.accent }}>
           {plan.label}
@@ -167,7 +262,6 @@ function PricingCard({ plan, onGetStarted }) {
 
       <GoldDivider />
 
-      {/* Features */}
       <ul className="space-y-2.5 flex-1">
         {plan.features.map((f) => (
           <li key={f} className="flex items-start gap-2.5">
@@ -177,10 +271,10 @@ function PricingCard({ plan, onGetStarted }) {
         ))}
       </ul>
 
-      {/* CTA */}
+      {/* ─── EFFECT 2: Button Shine on Pricing CTA ─── */}
       <button
         onClick={() => onGetStarted(plan.type)}
-        className="w-full py-3 rounded-full text-sm font-semibold transition-all"
+        className="w-full py-3 rounded-full text-sm font-semibold transition-all relative overflow-hidden"
         style={
           isPopular
             ? { background: "linear-gradient(135deg, #c8793a, #a05a28)", color: "#fff", boxShadow: "0 0 30px rgba(200,121,58,0.30)" }
@@ -195,6 +289,16 @@ function PricingCard({ plan, onGetStarted }) {
           else { e.currentTarget.style.background = "transparent"; }
         }}
       >
+        {isPopular && (
+          <span style={{
+            position: "absolute", top: "-50%", left: "-75%",
+            width: "50%", height: "200%",
+            background: "rgba(255,255,255,0.18)",
+            transform: "skewX(-20deg)",
+            animation: "btnShine 2.5s infinite",
+            pointerEvents: "none",
+          }} />
+        )}
         {plan.cta}
       </button>
     </motion.div>
@@ -207,13 +311,25 @@ export default function LandingPage({ onGetStarted }) {
   const heroY   = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
   const heroOpa = useTransform(scrollYProgress, [0, 0.65], [1, 0]);
 
-  // onGetStarted can optionally receive plan type — falls back to default behavior
   const handleGetStarted = (planType) => {
     if (typeof onGetStarted === "function") onGetStarted(planType);
   };
 
   return (
     <div className="relative min-h-screen overflow-x-hidden" style={{ color: "#f2e8d8", fontFamily: "'DM Sans', sans-serif" }}>
+
+      {/* ─── Global keyframes for all effects ─── */}
+      <style>{`
+        @keyframes btnShine {
+          0%   { left: -75%; }
+          100% { left: 125%; }
+        }
+        @keyframes shimmerText {
+          0%   { background-position: 200% center; }
+          100% { background-position: -200% center; }
+        }
+      `}</style>
+
       <AtelierBackground />
       <div className="relative z-10 flex flex-col min-h-screen">
 
@@ -244,17 +360,29 @@ export default function LandingPage({ onGetStarted }) {
                 </a>
               ))}
             </nav>
+
+            {/* ─── EFFECT 2: Button Shine on nav CTA ─── */}
             <button onClick={() => handleGetStarted()}
-              className="ml-4 md:ml-6 flex items-center gap-1.5 px-4 py-2 rounded-full text-white text-xs font-semibold transition-all"
+              className="ml-4 md:ml-6 flex items-center gap-1.5 px-4 py-2 rounded-full text-white text-xs font-semibold transition-all relative overflow-hidden"
               style={{ background: "linear-gradient(135deg, #c8793a, #a05a28)", boxShadow: "0 0 20px rgba(200,121,58,0.25)" }}>
+              <span style={{
+                position: "absolute", top: "-50%", left: "-75%",
+                width: "50%", height: "200%",
+                background: "rgba(255,255,255,0.18)",
+                transform: "skewX(-20deg)",
+                animation: "btnShine 2.8s infinite",
+                pointerEvents: "none",
+              }} />
               Try it now <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </motion.header>
 
         {/* ══ HERO ══ */}
+        {/* ─── EFFECT 3: Paint Dust Particles live here ─── */}
         <section ref={heroRef} className="relative flex items-center justify-center px-5 pt-20 pb-32 md:pt-28 md:pb-40 overflow-hidden">
-          <motion.div style={{ y: heroY, opacity: heroOpa }} className="text-center space-y-8 max-w-4xl mx-auto">
+          <PaintParticles />
+          <motion.div style={{ y: heroY, opacity: heroOpa, position: "relative", zIndex: 2 }} className="text-center space-y-8 max-w-4xl mx-auto">
             <motion.div {...fadeIn(0.1)} className="flex justify-center">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-widest uppercase"
                 style={{ border: "1px solid rgba(200,121,58,0.3)", background: "rgba(200,121,58,0.08)", color: "#c8793a" }}>
@@ -267,7 +395,15 @@ export default function LandingPage({ onGetStarted }) {
               className="text-5xl sm:text-6xl md:text-8xl font-bold leading-[1.02] tracking-tight"
               style={{ fontFamily: "'Cormorant Garamond', serif" }}>
               <span style={{ color: "#f2e8d8" }}>Upload a photo,</span><br />
-              <em style={{ background: "linear-gradient(120deg, #e8b86d 0%, #c8793a 50%, #e8b86d 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              {/* ─── EFFECT 1: Shimmer Text on hero headline ─── */}
+              <em style={{
+                background: "linear-gradient(90deg, #c8793a 0%, #f0d090 35%, #e8b86d 50%, #c8793a 65%, #f0d090 100%)",
+                backgroundSize: "200% auto",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                animation: "shimmerText 3.5s linear infinite",
+              }}>
                 learn to oil paint it.
               </em>
             </motion.h2>
@@ -280,11 +416,20 @@ export default function LandingPage({ onGetStarted }) {
             <motion.div {...fadeIn(0.32)} className="flex justify-center"><PaintSwatches /></motion.div>
 
             <motion.div {...fadeUp(0.36)} className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              {/* ─── EFFECT 2: Button Shine on hero CTA ─── */}
               <button onClick={() => handleGetStarted()}
-                className="group flex items-center gap-2 px-8 py-4 rounded-full text-white text-sm font-semibold transition-all"
+                className="group flex items-center gap-2 px-8 py-4 rounded-full text-white text-sm font-semibold transition-all relative overflow-hidden"
                 style={{ background: "linear-gradient(135deg, #c8793a, #a05a28)", boxShadow: "0 0 40px rgba(200,121,58,0.30)" }}
                 onMouseEnter={e => e.currentTarget.style.boxShadow = "0 0 60px rgba(200,121,58,0.50)"}
                 onMouseLeave={e => e.currentTarget.style.boxShadow = "0 0 40px rgba(200,121,58,0.30)"}>
+                <span style={{
+                  position: "absolute", top: "-50%", left: "-75%",
+                  width: "50%", height: "200%",
+                  background: "rgba(255,255,255,0.18)",
+                  transform: "skewX(-20deg)",
+                  animation: "btnShine 2.5s infinite",
+                  pointerEvents: "none",
+                }} />
                 Start Your Tutorial
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
@@ -300,7 +445,6 @@ export default function LandingPage({ onGetStarted }) {
               </a>
             </motion.div>
 
-            {/* ── Pricing pills ── */}
             <motion.div {...fadeIn(0.5)} className="flex flex-wrap items-center justify-center gap-2 pt-2">
               {["💳 $2.99 one tutorial", "🔁 $9.99/mo unlimited", "🎙️ Voice Narration", "🖌️ Old Master Technique"].map((f) => (
                 <span key={f} className="text-xs px-3 py-1.5 rounded-full"
@@ -313,7 +457,7 @@ export default function LandingPage({ onGetStarted }) {
 
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }}
             className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5"
-            style={{ color: "#4a3728" }}>
+            style={{ color: "#4a3728", zIndex: 2, position: "relative" }}>
             <span className="text-[9px] tracking-[0.2em] uppercase">Scroll</span>
             <motion.div animate={{ y: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
               <ChevronDown className="w-4 h-4" />
@@ -321,7 +465,7 @@ export default function LandingPage({ onGetStarted }) {
           </motion.div>
         </section>
 
-        {/* ══ WHY SECTION (replaces fake stats) ══ */}
+        {/* ══ WHY SECTION ══ */}
         <section className="border-y py-14"
           style={{ borderColor: "rgba(200,121,58,0.12)", background: "rgba(200,121,58,0.03)" }}>
           <div className="max-w-4xl mx-auto px-5 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
@@ -357,8 +501,16 @@ export default function LandingPage({ onGetStarted }) {
                   viewport={{ once: true }} transition={{ delay: i * 0.07, duration: 0.5 }}
                   className="rounded-2xl p-6 space-y-4 group transition-all"
                   style={{ border: "1px solid rgba(200,121,58,0.12)", background: "rgba(200,121,58,0.04)" }}
-                  onMouseEnter={e => { e.currentTarget.style.border = "1px solid rgba(200,121,58,0.28)"; e.currentTarget.style.background = "rgba(200,121,58,0.08)"; }}
-                  onMouseLeave={e => { e.currentTarget.style.border = "1px solid rgba(200,121,58,0.12)"; e.currentTarget.style.background = "rgba(200,121,58,0.04)"; }}>
+                  onMouseEnter={e => {
+                    e.currentTarget.style.border = "1px solid rgba(200,121,58,0.35)";
+                    e.currentTarget.style.background = "rgba(200,121,58,0.08)";
+                    e.currentTarget.style.boxShadow = "0 0 28px rgba(200,121,58,0.15), inset 0 0 20px rgba(200,121,58,0.04)";
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.border = "1px solid rgba(200,121,58,0.12)";
+                    e.currentTarget.style.background = "rgba(200,121,58,0.04)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}>
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center"
                     style={{ background: `${f.accent}18`, border: `1px solid ${f.accent}30`, color: f.accent }}>
                     {f.icon}
@@ -461,7 +613,6 @@ export default function LandingPage({ onGetStarted }) {
               ))}
             </div>
 
-            {/* Trust note */}
             <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
               className="text-center space-y-2">
               <div className="flex items-center justify-center gap-4 flex-wrap">
@@ -485,7 +636,14 @@ export default function LandingPage({ onGetStarted }) {
             <h3 className="text-4xl md:text-6xl font-bold leading-tight"
               style={{ fontFamily: "'Cormorant Garamond', serif", color: "#f2e8d8" }}>
               Ready to learn{" "}
-              <em style={{ background: "linear-gradient(120deg, #e8b86d, #c8793a)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              <em style={{
+                background: "linear-gradient(90deg, #c8793a 0%, #f0d090 35%, #e8b86d 50%, #c8793a 65%, #f0d090 100%)",
+                backgroundSize: "200% auto",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                animation: "shimmerText 3.5s linear infinite",
+              }}>
                 oil painting?
               </em>
             </h3>
@@ -494,11 +652,20 @@ export default function LandingPage({ onGetStarted }) {
             </p>
             <PaintSwatches />
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              {/* ─── EFFECT 2: Button Shine on CTA section ─── */}
               <button onClick={() => handleGetStarted("one-time")}
-                className="group inline-flex items-center gap-3 px-10 py-4 rounded-full text-white font-semibold text-sm transition-all"
+                className="group inline-flex items-center gap-3 px-10 py-4 rounded-full text-white font-semibold text-sm transition-all relative overflow-hidden"
                 style={{ background: "linear-gradient(135deg, #c8793a, #a05a28)", boxShadow: "0 0 50px rgba(200,121,58,0.30)" }}
                 onMouseEnter={e => e.currentTarget.style.boxShadow = "0 0 70px rgba(200,121,58,0.50)"}
                 onMouseLeave={e => e.currentTarget.style.boxShadow = "0 0 50px rgba(200,121,58,0.30)"}>
+                <span style={{
+                  position: "absolute", top: "-50%", left: "-75%",
+                  width: "50%", height: "200%",
+                  background: "rgba(255,255,255,0.18)",
+                  transform: "skewX(-20deg)",
+                  animation: "btnShine 2.5s infinite",
+                  pointerEvents: "none",
+                }} />
                 Try for $2.99
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
