@@ -403,13 +403,13 @@ if (!showApp) {
         ? `linear-gradient(135deg, ${C.sienna}, ${C.ochre})`
         : "rgba(255,255,255,0.05)",
       border: `1px solid ${showMasterGallery ? "transparent" : C.border}`,
-      color: showMasterGallery ? "#0c0907" : C.muted,
+      color: showMasterGallery ? "#0c0907" : C.ochre,
       fontSize: 13, fontWeight: 600, cursor: "pointer",
       transition: "all 0.25s",
       fontFamily: "'DM Sans', sans-serif",
 background: showMasterGallery
   ? `linear-gradient(135deg, ${C.sienna}, ${C.ochre})`
-  : "rgba(255,255,255,0.05)",
+  : `linear-gradient(135deg, rgba(200,121,58,0.15), rgba(232,184,109,0.08))`,
 backgroundSize: "200% auto",
 animation: showMasterGallery ? "none" : "masterShimmer 2.5s linear infinite",
     }}
