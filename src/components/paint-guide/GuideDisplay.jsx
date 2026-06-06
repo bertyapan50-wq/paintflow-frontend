@@ -35,6 +35,89 @@ const PRICE = {
   advanced:     "$2.99",
 };
 
+/* ── Inject CSS keyframe animations ── */
+const ANIM_STYLES = `
+  @keyframes pf-glow-sienna {
+    0%,100% { box-shadow: 0 0 10px 2px rgba(200,121,58,0.20), inset 0 0 12px rgba(200,121,58,0.04); border-color: rgba(200,121,58,0.45); }
+    50%      { box-shadow: 0 0 28px 7px rgba(232,184,109,0.50), inset 0 0 20px rgba(232,184,109,0.08); border-color: rgba(232,184,109,0.90); }
+  }
+  @keyframes pf-glow-purple {
+    0%,100% { box-shadow: 0 0 10px 2px rgba(139,92,246,0.20), inset 0 0 12px rgba(139,92,246,0.04); border-color: rgba(139,92,246,0.45); }
+    50%      { box-shadow: 0 0 28px 7px rgba(167,139,250,0.50), inset 0 0 20px rgba(167,139,250,0.08); border-color: rgba(167,139,250,0.90); }
+  }
+  @keyframes pf-badge-shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position:  200% center; }
+  }
+  @keyframes pf-cta-glow-sienna {
+    0%,100% { box-shadow: 0 4px 18px rgba(200,121,58,0.30); }
+    50%      { box-shadow: 0 4px 38px rgba(232,184,109,0.65), 0 0 0 3px rgba(200,121,58,0.14); }
+  }
+  @keyframes pf-cta-glow-purple {
+    0%,100% { box-shadow: 0 4px 18px rgba(139,92,246,0.30); }
+    50%      { box-shadow: 0 4px 38px rgba(167,139,250,0.65), 0 0 0 3px rgba(139,92,246,0.14); }
+  }
+  @keyframes pf-scanline {
+    0%   { left: -60%; }
+    100% { left: 130%;  }
+  }
+  @keyframes pf-arrow-bounce {
+    0%,100% { transform: translateX(0); }
+    50%      { transform: translateX(4px); }
+  }
+  .pf-plan-glow-sienna {
+    animation: pf-glow-sienna 2.4s ease-in-out infinite !important;
+  }
+  .pf-plan-glow-purple {
+    animation: pf-glow-purple 2.4s ease-in-out infinite !important;
+  }
+  .pf-badge-shimmer {
+    background: linear-gradient(90deg, #8b5cf6, #a78bfa, #c4b5fd, #8b5cf6) !important;
+    background-size: 300% auto !important;
+    animation: pf-badge-shimmer 2.2s linear infinite !important;
+  }
+  .pf-cta-sienna {
+    animation: pf-cta-glow-sienna 2s ease-in-out infinite !important;
+    position: relative; overflow: hidden;
+  }
+  .pf-cta-purple {
+    animation: pf-cta-glow-purple 2s ease-in-out infinite !important;
+    position: relative; overflow: hidden;
+  }
+  .pf-cta-sienna::after, .pf-cta-purple::after {
+    content: '';
+    position: absolute;
+    top: -50%; left: -60%;
+    width: 38%; height: 200%;
+    background: linear-gradient(105deg, transparent, rgba(255,255,255,0.22), transparent);
+    animation: pf-scanline 2.6s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .pf-arrow-bounce {
+    display: inline-block;
+    animation: pf-arrow-bounce 1.2s ease-in-out infinite;
+  }
+  @keyframes pf-price-shimmer {
+    0%   { background-position: -250% center; }
+    100% { background-position:  250% center; }
+  }
+  .pf-price-shimmer {
+    background: linear-gradient(90deg, #c4b5fd, #a78bfa, #ffffff, #e9d5ff, #a78bfa, #c4b5fd);
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: pf-price-shimmer 2.8s linear infinite;
+  }
+`;
+
+if (typeof document !== "undefined" && !document.getElementById("pf-anim-styles")) {
+  const tag = document.createElement("style");
+  tag.id = "pf-anim-styles";
+  tag.textContent = ANIM_STYLES;
+  document.head.appendChild(tag);
+}
+
 /* ── Thin gold divider ── */
 const Divider = ({ style }) => (
   <div style={{
@@ -88,11 +171,12 @@ const Waveform = () => (
 );
 
 /* ── Plan card ── */
-const PlanCard = ({ selected, onClick, accent, children, badge }) => (
+const PlanCard = ({ selected, onClick, accent, children, badge, glowClass }) => (
   <motion.button
     onClick={onClick}
     whileHover={{ y: -2 }}
     whileTap={{ scale: 0.985 }}
+    className={selected && glowClass ? glowClass : ""}
     style={{
       flex: 1, minWidth: 0,
       padding: "18px 20px",
@@ -104,26 +188,27 @@ const PlanCard = ({ selected, onClick, accent, children, badge }) => (
       cursor: "pointer",
       textAlign: "left",
       position: "relative",
-      transition: "border-color 0.2s, background 0.2s",
+      transition: "background 0.2s",
       overflow: "hidden",
     }}
   >
     {badge && (
-      <div style={{
-        position: "absolute", top: 0, right: 14,
-        background: accent,
-        color: "#0c0907",
-        fontSize: 9, fontWeight: 800,
-        letterSpacing: "0.07em",
-        textTransform: "uppercase",
-        padding: "3px 9px",
-        borderRadius: "0 0 8px 8px",
-        fontFamily: "'DM Sans', sans-serif",
-      }}>
+      <div
+        className="pf-badge-shimmer"
+        style={{
+          position: "absolute", top: 0, right: 14,
+          color: "#0c0907",
+          fontSize: 9, fontWeight: 800,
+          letterSpacing: "0.07em",
+          textTransform: "uppercase",
+          padding: "3px 9px",
+          borderRadius: "0 0 8px 8px",
+          fontFamily: "'DM Sans', sans-serif",
+        }}
+      >
         {badge}
       </div>
     )}
-    {/* Glow when selected */}
     {selected && (
       <motion.div
         initial={{ opacity: 0 }}
@@ -488,6 +573,7 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
                     selected={selectedPlan === "onetime"}
                     onClick={() => setSelectedPlan("onetime")}
                     accent={C.sienna}
+                    glowClass="pf-plan-glow-sienna"
                   >
                     <p style={{
                       fontSize: 10, fontWeight: 700, letterSpacing: "0.08em",
@@ -532,6 +618,7 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
                     onClick={() => setSelectedPlan("subscription")}
                     accent={C.purple}
                     badge="Best value"
+                    glowClass="pf-plan-glow-purple"
                   >
                     <p style={{
                       fontSize: 10, fontWeight: 700, letterSpacing: "0.08em",
@@ -541,11 +628,13 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
                       fontFamily: "'DM Sans', sans-serif",
                     }}>Subscription</p>
                     <div style={{ display: "flex", alignItems: "baseline", gap: 3, marginBottom: 6 }}>
-                      <span style={{
-                        fontFamily: "'Cormorant Garamond', serif",
-                        fontSize: 30, fontWeight: 700, lineHeight: 1,
-                        color: C.cream,
-                      }}>$9.99</span>
+                      <span
+                        className="pf-price-shimmer"
+                        style={{
+                          fontFamily: "'Cormorant Garamond', serif",
+                          fontSize: 30, fontWeight: 700, lineHeight: 1,
+                        }}
+                      >$9.99</span>
                       <span style={{ fontSize: 12, color: C.muted, fontFamily: "'DM Sans', sans-serif" }}>/mo</span>
                     </div>
                     <p style={{
@@ -578,6 +667,7 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
                   whileHover={{ scale: 1.015, y: -1 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleProceed}
+                  className={selectedPlan === "subscription" ? "pf-cta-purple" : "pf-cta-sienna"}
                   style={{
                     width: "100%",
                     marginTop: 14,
@@ -592,10 +682,7 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
                     fontSize: 14, fontWeight: 700,
                     cursor: "pointer",
                     fontFamily: "'DM Sans', sans-serif",
-                    boxShadow: selectedPlan === "subscription"
-                      ? `0 4px 24px ${C.purple}35`
-                      : `0 4px 24px ${C.sienna}35`,
-                    transition: "background 0.25s, box-shadow 0.25s",
+                    transition: "background 0.25s",
                   }}
                 >
                   {selectedPlan === "subscription"
@@ -606,7 +693,9 @@ export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "i
                     ? "Subscribe — $9.99/mo"
                     : `Pay — ${price}`
                   }
-                  <ArrowRight size={14} strokeWidth={2.5} style={{ marginLeft: 2 }} />
+                  <span className="pf-arrow-bounce" style={{ marginLeft: 2, display: "inline-flex" }}>
+                    <ArrowRight size={14} strokeWidth={2.5} />
+                  </span>
                 </motion.button>
 
                 {/* Ghost dismiss */}
