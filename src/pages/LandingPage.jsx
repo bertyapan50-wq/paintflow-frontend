@@ -293,6 +293,11 @@ export default function LandingPage({ onGetStarted }) {
                 style={{ border: "1px solid rgba(200,121,58,0.2)", background: "rgba(200,121,58,0.05)", color: "#8a7660" }}>
                 See pricing
               </a>
+              <a href="/preview"
+                className="flex items-center gap-2 px-6 py-4 rounded-full text-sm font-medium transition-all"
+                style={{ border: "1px solid rgba(200,121,58,0.35)", background: "rgba(200,121,58,0.08)", color: "#c8793a" }}>
+                ✨ Try Free Preview
+              </a>
             </motion.div>
 
             {/* ── Pricing pills ── */}

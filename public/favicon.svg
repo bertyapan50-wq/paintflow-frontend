@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700"/>
+      <stop offset="50%" style="stop-color:#FFA500"/>
+      <stop offset="100%" style="stop-color:#B8860B"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" rx="80" fill="#1a1a2e"/>
+  <rect width="400" height="400" rx="80" fill="none" stroke="#B8860B" stroke-width="6"/>
+  <path d="M60 240 Q120 160 200 185 Q270 205 310 160 Q345 120 370 145 Q350 175 320 210 Q280 250 200 230 Q130 215 80 265 Z" fill="url(#goldGrad)" opacity="0.95"/>
+  <path d="M70 270 Q130 245 210 258 Q280 272 330 245 Q310 275 280 282 Q230 292 160 278 Q110 268 70 270 Z" fill="#FFD700" opacity="0.35"/>
+  <circle cx="200" cy="210" r="75" fill="#0d0d1a" opacity="0.9"/>
+  <circle cx="200" cy="210" r="75" fill="none" stroke="#FFD700" stroke-width="3"/>
+  <text x="172" y="235" font-family="Georgia, serif" font-size="52" font-weight="700" fill="#FFD700">P</text>
+  <text x="208" y="235" font-family="Georgia, serif" font-size="52" font-weight="700" fill="#FFA500" opacity="0.85">F</text>
+</svg>
