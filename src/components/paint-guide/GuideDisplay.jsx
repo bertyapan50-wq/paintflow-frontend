@@ -3,7 +3,11 @@ import API_URL from "../../lib/api";
 import PaintingTimelapse from "./PaintingTimelapse";
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { RotateCcw, ChevronDown, ChevronUp, Clock, BarChart2, Palette, Film, Info, CreditCard, CheckCircle, XCircle, Zap } from "lucide-react";
+import {
+  RotateCcw, ChevronDown, ChevronUp, Clock, BarChart2, Palette,
+  Film, Info, CreditCard, CheckCircle, XCircle, Zap, Shield, RefreshCw,
+  Lock, Star, ArrowRight,
+} from "lucide-react";
 
 /* ── Atelier Noir tokens ── */
 const C = {
@@ -65,7 +69,7 @@ const SectionLabel = ({ children }) => (
   </p>
 );
 
-/* ── Waveform bars (reusable) ── */
+/* ── Waveform bars ── */
 const Waveform = () => (
   <div style={{ display: "flex", gap: 4, alignItems: "flex-end", height: 28 }}>
     {[0.5, 0.9, 0.6, 1, 0.7, 1.1, 0.5, 0.8, 0.6].map((h, i) => (
@@ -83,17 +87,93 @@ const Waveform = () => (
   </div>
 );
 
+/* ── Plan card ── */
+const PlanCard = ({ selected, onClick, accent, children, badge }) => (
+  <motion.button
+    onClick={onClick}
+    whileHover={{ y: -2 }}
+    whileTap={{ scale: 0.985 }}
+    style={{
+      flex: 1, minWidth: 0,
+      padding: "18px 20px",
+      borderRadius: 14,
+      background: selected
+        ? `linear-gradient(145deg, ${accent}18, ${accent}08)`
+        : "rgba(255,255,255,0.025)",
+      border: `1.5px solid ${selected ? accent : "rgba(255,255,255,0.07)"}`,
+      cursor: "pointer",
+      textAlign: "left",
+      position: "relative",
+      transition: "border-color 0.2s, background 0.2s",
+      overflow: "hidden",
+    }}
+  >
+    {badge && (
+      <div style={{
+        position: "absolute", top: 0, right: 14,
+        background: accent,
+        color: "#0c0907",
+        fontSize: 9, fontWeight: 800,
+        letterSpacing: "0.07em",
+        textTransform: "uppercase",
+        padding: "3px 9px",
+        borderRadius: "0 0 8px 8px",
+        fontFamily: "'DM Sans', sans-serif",
+      }}>
+        {badge}
+      </div>
+    )}
+    {/* Glow when selected */}
+    {selected && (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        style={{
+          position: "absolute", inset: 0, borderRadius: 12,
+          background: `radial-gradient(ellipse at 20% 50%, ${accent}12, transparent 70%)`,
+          pointerEvents: "none",
+        }}
+      />
+    )}
+    {children}
+  </motion.button>
+);
+
+/* ── Trust badge row ── */
+const TrustBadges = () => (
+  <div style={{
+    display: "flex", gap: 16, flexWrap: "wrap",
+    padding: "12px 0 0",
+    borderTop: `1px solid rgba(255,255,255,0.05)`,
+    marginTop: 6,
+  }}>
+    {[
+      { icon: <Shield size={11} color={C.muted} />, label: "Secure via Dodo Payments" },
+      { icon: <RefreshCw size={11} color={C.muted} />, label: "Cancel anytime" },
+      { icon: <Lock size={11} color={C.muted} />, label: "256-bit SSL" },
+    ].map((t, i) => (
+      <div key={i} style={{
+        display: "flex", alignItems: "center", gap: 5,
+        fontSize: 11, color: `${C.muted}99`,
+      }}>
+        {t.icon}
+        {t.label}
+      </div>
+    ))}
+  </div>
+);
+
 export default function GuideDisplay({ guide, imageUrl, onReset, skillLevel = "intermediate", customerEmail = "" }) {
   const [showAllMaterials, setShowAllMaterials] = useState(false);
   const DEV_BYPASS_PAYMENT = false;
-const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
+  const [videoRequested, setVideoRequested] = useState(DEV_BYPASS_PAYMENT);
 
-  // Payment states: idle | creating | waiting | verifying | failed
-  const [paymentState, setPaymentState]         = useState("idle");
-  const [paymentError, setPaymentError]         = useState(null);
-  // "onetime" | "subscription"
-  const [paymentMode, setPaymentMode]           = useState(null);
-  const [accessToken, setAccessToken]           = useState(null);
+  const [paymentState, setPaymentState] = useState("idle");
+  const [paymentError, setPaymentError] = useState(null);
+  const [paymentMode, setPaymentMode]   = useState(null);
+  const [accessToken, setAccessToken]   = useState(null);
+  // Which plan the user has highlighted in the UI
+  const [selectedPlan, setSelectedPlan] = useState("onetime");
 
   const pollIntervalRef   = useRef(null);
   const paymentIdRef      = useRef(null);
@@ -103,18 +183,12 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
   const badge = SKILL_BADGE[skillLevel] ?? SKILL_BADGE.intermediate;
   const price = PRICE[skillLevel] ?? "$1.99";
 
-  /* ── Cleanup on unmount ── */
   useEffect(() => {
-    return () => {
-      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-    };
+    return () => { if (pollIntervalRef.current) clearInterval(pollIntervalRef.current); };
   }, []);
 
-  /* ── Poll helper ── */
   const startPolling = (checkFn) => {
     pollIntervalRef.current = setInterval(checkFn, 3000);
-
-    // Auto-stop after 10 minutes
     setTimeout(() => {
       if (pollIntervalRef.current) {
         clearInterval(pollIntervalRef.current);
@@ -129,29 +203,24 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
     }, 10 * 60 * 1000);
   };
 
-  /* ── One-time payment ── */
   const handleOneTimePayment = async () => {
     setPaymentMode("onetime");
     setPaymentState("creating");
     setPaymentError(null);
-
     try {
       const res = await fetch(`${API_URL}/api/create-payment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ skillLevel, customerEmail }),
       });
-
       if (!res.ok) {
         const errBody = await res.json().catch(() => ({}));
         throw new Error(`HTTP ${res.status}: ${JSON.stringify(errBody)}`);
       }
-
       const { payment_id, payment_link } = await res.json();
       paymentIdRef.current = payment_id;
       checkoutTabRef.current = window.open(payment_link, "_blank");
       setPaymentState("waiting");
-
       startPolling(async () => {
         try {
           const verifyRes = await fetch(`${API_URL}/api/verify-payment/${payment_id}`);
@@ -163,39 +232,32 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
             setPaymentState("idle");
             setVideoRequested(true);
           }
-        } catch { /* silent fail — keep polling */ }
+        } catch { /* silent */ }
       });
-
     } catch (err) {
-      console.error("❌ Payment error:", err);
       setPaymentState("failed");
       setPaymentError(err.message || "Something went wrong. Please try again.");
     }
   };
 
-  /* ── Subscription payment ── */
   const handleSubscriptionPayment = async () => {
     setPaymentMode("subscription");
     setPaymentState("creating");
     setPaymentError(null);
-
     try {
       const res = await fetch(`${API_URL}/api/create-subscription`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ customerEmail }),
       });
-
       if (!res.ok) {
         const errBody = await res.json().catch(() => ({}));
         throw new Error(`HTTP ${res.status}: ${JSON.stringify(errBody)}`);
       }
-
       const { subscription_id, payment_link } = await res.json();
       subscriptionIdRef.current = subscription_id;
       checkoutTabRef.current = window.open(payment_link, "_blank");
       setPaymentState("waiting");
-
       startPolling(async () => {
         try {
           const verifyRes = await fetch(`${API_URL}/api/verify-subscription/${subscription_id}`);
@@ -207,11 +269,9 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
             setPaymentState("idle");
             setVideoRequested(true);
           }
-        } catch { /* silent fail */ }
+        } catch { /* silent */ }
       });
-
     } catch (err) {
-      console.error("❌ Subscription error:", err);
       setPaymentState("failed");
       setPaymentError(err.message || "Something went wrong. Please try again.");
     }
@@ -231,6 +291,11 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
     setPaymentMode(null);
   };
 
+  const handleProceed = () => {
+    if (selectedPlan === "subscription") handleSubscriptionPayment();
+    else handleOneTimePayment();
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -243,37 +308,27 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
       <Card>
         <div style={{ padding: "24px 24px 0" }}>
           <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
-
-            {/* Reference image */}
             <div style={{ flexShrink: 0, width: 100 }}>
               <div style={{
                 borderRadius: 12, overflow: "hidden",
                 border: `1px solid ${C.border}`,
                 boxShadow: `0 0 24px ${C.sienna}22`,
               }}>
-                <img
-                  src={imageUrl}
-                  alt="Reference"
-                  style={{ width: "100%", height: 100, objectFit: "cover", display: "block" }}
-                />
+                <img src={imageUrl} alt="Reference"
+                  style={{ width: "100%", height: 100, objectFit: "cover", display: "block" }} />
               </div>
               <p style={{
                 fontSize: 10, color: C.muted, textAlign: "center",
                 marginTop: 6, letterSpacing: "0.06em", textTransform: "uppercase",
-              }}>
-                Reference
-              </p>
+              }}>Reference</p>
             </div>
 
-            {/* Title + badges */}
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
                 <span style={{
                   fontSize: 10, fontWeight: 700, letterSpacing: "0.1em",
                   textTransform: "uppercase", color: C.ochre,
-                }}>
-                  🎨 Oil Painting Guide
-                </span>
+                }}>🎨 Oil Painting Guide</span>
                 <span style={{
                   display: "inline-flex", alignItems: "center", gap: 4,
                   padding: "3px 10px", borderRadius: 99, fontSize: 10, fontWeight: 600,
@@ -283,7 +338,6 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
                   {badge.emoji} {badge.label}
                 </span>
               </div>
-
               <h2 style={{
                 fontFamily: "'Cormorant Garamond', serif",
                 fontSize: "clamp(22px, 4vw, 34px)",
@@ -292,14 +346,12 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
               }}>
                 {guide.title}
               </h2>
-
               <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.65, margin: 0 }}>
                 {guide.overview}
               </p>
             </div>
           </div>
 
-          {/* Stats row */}
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 20 }}>
             {[
               { icon: <Clock size={12} color={C.sienna} />, label: guide.estimated_time },
@@ -317,7 +369,6 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
           </div>
         </div>
 
-        {/* Materials */}
         {guide.materials?.length > 0 && (
           <>
             <Divider style={{ margin: "20px 0 0" }} />
@@ -336,7 +387,6 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
                   ? <ChevronUp size={14} color={C.muted} />
                   : <ChevronDown size={14} color={C.muted} />}
               </button>
-
               <AnimatePresence>
                 {showAllMaterials && (
                   <motion.div
@@ -381,10 +431,10 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
         )}
       </Card>
 
-      {/* ══ VIDEO SECTION ══ */}
+      {/* ══ VIDEO / PAYMENT SECTION ══ */}
       <AnimatePresence mode="wait">
 
-        {/* ── 1. Idle prompt card ── */}
+        {/* ── 1. IDLE — Payment chooser ── */}
         {!videoRequested && paymentState === "idle" && (
           <motion.div
             key="video-prompt"
@@ -393,140 +443,199 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.3 }}
           >
-            <Card style={{ padding: "24px 28px" }}>
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 18 }}>
+            <Card style={{ overflow: "hidden" }}>
+
+              {/* Card header */}
+              <div style={{
+                padding: "22px 24px 18px",
+                borderBottom: `1px solid rgba(255,255,255,0.05)`,
+                display: "flex", alignItems: "center", gap: 14,
+              }}>
                 <div style={{
-                  width: 48, height: 48, borderRadius: 14, flexShrink: 0,
-                  background: `linear-gradient(135deg, ${C.sienna}22, ${C.ochre}10)`,
+                  width: 44, height: 44, borderRadius: 13, flexShrink: 0,
+                  background: `linear-gradient(135deg, ${C.sienna}28, ${C.ochre}10)`,
                   border: `1px solid ${C.sienna}35`,
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  boxShadow: `0 0 20px ${C.sienna}18`,
                 }}>
-                  <Film size={22} color={C.sienna} strokeWidth={1.6} />
+                  <Film size={20} color={C.sienna} strokeWidth={1.6} />
                 </div>
-
-                <div style={{ flex: 1 }}>
+                <div>
                   <h3 style={{
                     fontFamily: "'Cormorant Garamond', serif",
-                    fontSize: 20, fontWeight: 700, color: C.cream,
-                    margin: "0 0 5px", letterSpacing: "-0.01em",
+                    fontSize: 19, fontWeight: 700, color: C.cream,
+                    margin: "0 0 3px", letterSpacing: "-0.01em",
                   }}>
-                    Want to generate a Tutorial Video?
+                    Generate Tutorial Video
                   </h3>
-                  <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.6, margin: "0 0 12px" }}>
-                    The video is rendered step by step using AI — this may take a few minutes
-                    depending on the complexity of your image and the number of steps.
+                  <p style={{ fontSize: 12, color: C.muted, margin: 0, lineHeight: 1.5 }}>
+                    AI renders your painting step-by-step with voice narration
                   </p>
-
-                  {/* Pricing options */}
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-
-                    {/* One-time badge */}
-                    <div style={{
-                      display: "inline-flex", alignItems: "center", gap: 5,
-                      padding: "4px 12px", borderRadius: 8,
-                      background: `${C.sienna}15`, border: `1px solid ${C.sienna}40`,
-                      fontSize: 12, color: C.ochre, fontWeight: 700,
-                    }}>
-                      <CreditCard size={11} color={C.ochre} />
-                      {price} one-time
-                    </div>
-
-                    {/* Subscription badge */}
-                    <div style={{
-                      display: "inline-flex", alignItems: "center", gap: 5,
-                      padding: "4px 12px", borderRadius: 8,
-                      background: `${C.purple}15`, border: `1px solid ${C.purple}40`,
-                      fontSize: 12, color: C.purple, fontWeight: 700,
-                    }}>
-                      <Zap size={11} color={C.purple} />
-                      $9.99/mo unlimited
-                    </div>
-
-                    <div style={{
-                      display: "inline-flex", alignItems: "center", gap: 5,
-                      padding: "4px 10px", borderRadius: 8,
-                      background: `${C.ochre}10`, border: `1px solid ${C.ochre}25`,
-                      fontSize: 11, color: `${C.ochre}cc`,
-                    }}>
-                      <Info size={11} color={C.ochre} />
-                      Secure via Dodo Payments
-                    </div>
-                  </div>
                 </div>
               </div>
 
-              {/* Action buttons */}
-              <div style={{ display: "flex", gap: 10, marginTop: 20, flexWrap: "wrap" }}>
+              {/* Plan selector */}
+              <div style={{ padding: "20px 24px" }}>
+                <p style={{
+                  fontSize: 10, fontWeight: 700, letterSpacing: "0.1em",
+                  textTransform: "uppercase", color: `${C.muted}88`,
+                  marginBottom: 12,
+                }}>Choose a plan</p>
 
-                {/* One-time pay button */}
+                <div style={{ display: "flex", gap: 10 }}>
+
+                  {/* One-time plan */}
+                  <PlanCard
+                    selected={selectedPlan === "onetime"}
+                    onClick={() => setSelectedPlan("onetime")}
+                    accent={C.sienna}
+                  >
+                    <p style={{
+                      fontSize: 10, fontWeight: 700, letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      color: selectedPlan === "onetime" ? `${C.ochre}cc` : `${C.muted}88`,
+                      margin: "0 0 8px",
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}>One-time</p>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 3, marginBottom: 6 }}>
+                      <span style={{
+                        fontFamily: "'Cormorant Garamond', serif",
+                        fontSize: 30, fontWeight: 700, lineHeight: 1,
+                        color: C.cream,
+                      }}>{price}</span>
+                    </div>
+                    <p style={{
+                      fontSize: 11, color: C.muted, margin: 0,
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}>This painting only</p>
+
+                    {/* Selection indicator */}
+                    <div style={{
+                      marginTop: 12,
+                      display: "flex", alignItems: "center", gap: 5,
+                      opacity: selectedPlan === "onetime" ? 1 : 0,
+                      transition: "opacity 0.2s",
+                    }}>
+                      <div style={{
+                        width: 14, height: 14, borderRadius: "50%",
+                        background: C.sienna,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                      }}>
+                        <CheckCircle size={9} color="#0c0907" strokeWidth={3} />
+                      </div>
+                      <span style={{ fontSize: 10, color: C.sienna, fontWeight: 600, fontFamily: "'DM Sans', sans-serif" }}>Selected</span>
+                    </div>
+                  </PlanCard>
+
+                  {/* Subscription plan */}
+                  <PlanCard
+                    selected={selectedPlan === "subscription"}
+                    onClick={() => setSelectedPlan("subscription")}
+                    accent={C.purple}
+                    badge="Best value"
+                  >
+                    <p style={{
+                      fontSize: 10, fontWeight: 700, letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                      color: selectedPlan === "subscription" ? `${C.purple}cc` : `${C.muted}88`,
+                      margin: "0 0 8px",
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}>Subscription</p>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 3, marginBottom: 6 }}>
+                      <span style={{
+                        fontFamily: "'Cormorant Garamond', serif",
+                        fontSize: 30, fontWeight: 700, lineHeight: 1,
+                        color: C.cream,
+                      }}>$9.99</span>
+                      <span style={{ fontSize: 12, color: C.muted, fontFamily: "'DM Sans', sans-serif" }}>/mo</span>
+                    </div>
+                    <p style={{
+                      fontSize: 11, margin: 0,
+                      color: selectedPlan === "subscription" ? `${C.purple}bb` : C.muted,
+                      fontFamily: "'DM Sans', sans-serif",
+                      transition: "color 0.2s",
+                    }}>Unlimited videos, cancel anytime</p>
+
+                    <div style={{
+                      marginTop: 12,
+                      display: "flex", alignItems: "center", gap: 5,
+                      opacity: selectedPlan === "subscription" ? 1 : 0,
+                      transition: "opacity 0.2s",
+                    }}>
+                      <div style={{
+                        width: 14, height: 14, borderRadius: "50%",
+                        background: C.purple,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                      }}>
+                        <CheckCircle size={9} color="#fff" strokeWidth={3} />
+                      </div>
+                      <span style={{ fontSize: 10, color: C.purple, fontWeight: 600, fontFamily: "'DM Sans', sans-serif" }}>Selected</span>
+                    </div>
+                  </PlanCard>
+                </div>
+
+                {/* CTA */}
                 <motion.button
-                  whileHover={{ scale: 1.03, y: -1 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={handleOneTimePayment}
+                  whileHover={{ scale: 1.015, y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleProceed}
                   style={{
-                    display: "inline-flex", alignItems: "center", gap: 8,
-                    padding: "10px 22px", borderRadius: 99,
-                    background: `linear-gradient(135deg, ${C.sienna}, ${C.ochre})`,
-                    border: "none", color: "#0c0907",
-                    fontSize: 13, fontWeight: 700, cursor: "pointer",
-                    boxShadow: `0 0 24px ${C.sienna}40`,
+                    width: "100%",
+                    marginTop: 14,
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+                    padding: "14px 24px",
+                    borderRadius: 12,
+                    background: selectedPlan === "subscription"
+                      ? `linear-gradient(135deg, ${C.purple}dd, #7c3aed)`
+                      : `linear-gradient(135deg, ${C.sienna}, ${C.ochre})`,
+                    border: "none",
+                    color: selectedPlan === "subscription" ? "#fff" : "#0c0907",
+                    fontSize: 14, fontWeight: 700,
+                    cursor: "pointer",
                     fontFamily: "'DM Sans', sans-serif",
+                    boxShadow: selectedPlan === "subscription"
+                      ? `0 4px 24px ${C.purple}35`
+                      : `0 4px 24px ${C.sienna}35`,
+                    transition: "background 0.25s, box-shadow 0.25s",
                   }}
                 >
-                  <CreditCard size={14} color="#0c0907" strokeWidth={2.5} />
-                  Pay — {price}
+                  {selectedPlan === "subscription"
+                    ? <Zap size={15} strokeWidth={2.5} />
+                    : <CreditCard size={15} strokeWidth={2.5} />
+                  }
+                  {selectedPlan === "subscription"
+                    ? "Subscribe — $9.99/mo"
+                    : `Pay — ${price}`
+                  }
+                  <ArrowRight size={14} strokeWidth={2.5} style={{ marginLeft: 2 }} />
                 </motion.button>
 
-                {/* Subscription button */}
-                <motion.button
-                  whileHover={{ scale: 1.03, y: -1 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={handleSubscriptionPayment}
-                  style={{
-                    display: "inline-flex", alignItems: "center", gap: 8,
-                    padding: "10px 22px", borderRadius: 99,
-                    background: `linear-gradient(135deg, ${C.purple}cc, #7c3aed)`,
-                    border: "none", color: "#fff",
-                    fontSize: 13, fontWeight: 700, cursor: "pointer",
-                    boxShadow: `0 0 24px ${C.purple}30`,
-                    fontFamily: "'DM Sans', sans-serif",
-                  }}
-                >
-                  <Zap size={14} color="#fff" strokeWidth={2.5} />
-                  Subscribe — $9.99/mo
-                </motion.button>
-
+                {/* Ghost dismiss */}
                 <button
                   onClick={onReset}
                   style={{
-                    display: "inline-flex", alignItems: "center", gap: 7,
-                    padding: "10px 20px", borderRadius: 99,
-                    background: "transparent", border: `1px solid ${C.border}`,
-                    color: C.muted, fontSize: 13, cursor: "pointer",
+                    width: "100%",
+                    marginTop: 8,
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
+                    padding: "10px 20px", borderRadius: 10,
+                    background: "transparent",
+                    border: `1px solid rgba(255,255,255,0.06)`,
+                    color: `${C.muted}99`, fontSize: 12, cursor: "pointer",
                     fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s",
                   }}
-                  onMouseEnter={e => e.currentTarget.style.color = C.cream}
-                  onMouseLeave={e => e.currentTarget.style.color = C.muted}
+                  onMouseEnter={e => { e.currentTarget.style.color = C.muted; e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = `${C.muted}99`; e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)"; }}
                 >
-                  <RotateCcw size={13} />
+                  <RotateCcw size={12} />
                   No thanks, upload a new photo
                 </button>
-              </div>
 
-              {/* Subscription value note */}
-              <p style={{
-                fontSize: 11, color: `${C.muted}88`,
-                marginTop: 12, paddingTop: 12,
-                borderTop: `1px solid ${C.border}`,
-              }}>
-                💡 <strong style={{ color: `${C.muted}cc` }}>Subscription</strong> — unlimited video generation for all your tutorials. Cancel anytime.
-              </p>
+                <TrustBadges />
+              </div>
             </Card>
           </motion.div>
         )}
 
-        {/* ── 2. Creating payment/subscription link ── */}
+        {/* ── 2. Creating checkout link ── */}
         {paymentState === "creating" && (
           <motion.div
             key="payment-creating"
@@ -535,7 +644,7 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.3 }}
           >
-            <Card style={{ padding: "36px 28px" }}>
+            <Card style={{ padding: "48px 28px" }}>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
                 <div style={{ position: "relative", width: 64, height: 64 }}>
                   <div style={{
@@ -553,24 +662,26 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
                     }}
                   />
                   <div style={{
-                    position: "absolute", inset: 8, borderRadius: "50%",
-                    background: `linear-gradient(135deg, ${C.sienna}20, ${C.ochre}10)`,
+                    position: "absolute", inset: 10, borderRadius: "50%",
+                    background: paymentMode === "subscription"
+                      ? `${C.purple}15`
+                      : `${C.sienna}15`,
                     display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
                     {paymentMode === "subscription"
-                      ? <Zap size={20} color={C.purple} strokeWidth={1.6} />
-                      : <CreditCard size={20} color={C.sienna} strokeWidth={1.6} />
+                      ? <Zap size={18} color={C.purple} strokeWidth={1.6} />
+                      : <CreditCard size={18} color={C.sienna} strokeWidth={1.6} />
                     }
                   </div>
                 </div>
                 <div style={{ textAlign: "center" }}>
                   <motion.p
                     animate={{ opacity: [0.6, 1, 0.6] }}
-                    transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+                    transition={{ duration: 1.8, repeat: Infinity }}
                     style={{
                       fontFamily: "'Cormorant Garamond', serif",
                       fontSize: 20, fontWeight: 700, color: C.cream,
-                      margin: "0 0 6px", letterSpacing: "-0.01em",
+                      margin: "0 0 6px",
                     }}
                   >
                     Preparing checkout…
@@ -594,75 +705,97 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.3 }}
           >
-            <Card style={{ padding: "36px 28px" }}>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
+            <Card style={{ overflow: "hidden" }}>
 
-                <motion.div
-                  animate={{ scale: [1, 1.08, 1], boxShadow: [`0 0 0px ${C.sienna}00`, `0 0 32px ${C.sienna}55`, `0 0 0px ${C.sienna}00`] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  style={{
-                    width: 64, height: 64, borderRadius: 18,
-                    background: paymentMode === "subscription"
-                      ? `linear-gradient(135deg, ${C.purple}30, #7c3aed15)`
-                      : `linear-gradient(135deg, ${C.sienna}30, ${C.ochre}15)`,
-                    border: `1px solid ${paymentMode === "subscription" ? C.purple : C.sienna}50`,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                  }}
-                >
-                  {paymentMode === "subscription"
-                    ? <Zap size={28} color={C.purple} strokeWidth={1.5} />
-                    : <CreditCard size={28} color={C.sienna} strokeWidth={1.5} />
-                  }
-                </motion.div>
+              {/* Animated top bar */}
+              <motion.div
+                animate={{ scaleX: [0, 1] }}
+                transition={{ duration: 2.5, ease: "easeInOut", repeat: Infinity }}
+                style={{
+                  height: 3,
+                  background: paymentMode === "subscription"
+                    ? `linear-gradient(90deg, ${C.purple}, #a78bfa)`
+                    : `linear-gradient(90deg, ${C.sienna}, ${C.ochre})`,
+                  transformOrigin: "left",
+                }}
+              />
 
-                <div style={{ textAlign: "center" }}>
-                  <p style={{
-                    fontFamily: "'Cormorant Garamond', serif",
-                    fontSize: 22, fontWeight: 700, color: C.cream,
-                    margin: "0 0 8px", letterSpacing: "-0.01em",
-                  }}>
+              <div style={{ padding: "36px 28px" }}>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
+
+                  <motion.div
+                    animate={{
+                      scale: [1, 1.06, 1],
+                      boxShadow: [
+                        `0 0 0px ${paymentMode === "subscription" ? C.purple : C.sienna}00`,
+                        `0 0 28px ${paymentMode === "subscription" ? C.purple : C.sienna}45`,
+                        `0 0 0px ${paymentMode === "subscription" ? C.purple : C.sienna}00`,
+                      ],
+                    }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    style={{
+                      width: 60, height: 60, borderRadius: 16,
+                      background: paymentMode === "subscription"
+                        ? `linear-gradient(135deg, ${C.purple}28, #7c3aed14)`
+                        : `linear-gradient(135deg, ${C.sienna}28, ${C.ochre}14)`,
+                      border: `1px solid ${paymentMode === "subscription" ? C.purple : C.sienna}50`,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                    }}
+                  >
                     {paymentMode === "subscription"
-                      ? "Waiting for subscription…"
-                      : "Waiting for payment…"
+                      ? <Zap size={26} color={C.purple} strokeWidth={1.5} />
+                      : <CreditCard size={26} color={C.sienna} strokeWidth={1.5} />
                     }
-                  </p>
-                  <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.6, margin: "0 0 4px" }}>
-                    Dodo checkout opened in a new tab.
-                  </p>
-                  <p style={{ fontSize: 12, color: `${C.muted}88`, margin: 0 }}>
-                    This page will continue automatically once payment is complete.
-                  </p>
-                </div>
+                  </motion.div>
 
-                <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                  {[0, 1, 2].map(i => (
-                    <motion.div
-                      key={i}
-                      animate={{ opacity: [0.2, 1, 0.2], y: [0, -4, 0] }}
-                      transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
-                      style={{
-                        width: 8, height: 8, borderRadius: "50%",
-                        background: paymentMode === "subscription" ? C.purple : C.sienna,
-                      }}
-                    />
-                  ))}
-                </div>
+                  <div style={{ textAlign: "center" }}>
+                    <p style={{
+                      fontFamily: "'Cormorant Garamond', serif",
+                      fontSize: 22, fontWeight: 700, color: C.cream,
+                      margin: "0 0 6px",
+                    }}>
+                      {paymentMode === "subscription" ? "Complete your subscription" : "Complete your payment"}
+                    </p>
+                    <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.6, margin: "0 0 3px" }}>
+                      Checkout opened in a new tab.
+                    </p>
+                    <p style={{ fontSize: 11, color: `${C.muted}77`, margin: 0 }}>
+                      This page continues automatically once confirmed.
+                    </p>
+                  </div>
 
-                <button
-                  onClick={handleCancelPayment}
-                  style={{
-                    display: "inline-flex", alignItems: "center", gap: 6,
-                    padding: "8px 18px", borderRadius: 99,
-                    background: "transparent", border: `1px solid ${C.border}`,
-                    color: C.muted, fontSize: 12, cursor: "pointer",
-                    fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s",
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.color = C.cream}
-                  onMouseLeave={e => e.currentTarget.style.color = C.muted}
-                >
-                  <XCircle size={13} />
-                  Cancel
-                </button>
+                  {/* Pulse dots */}
+                  <div style={{ display: "flex", gap: 7, alignItems: "center" }}>
+                    {[0, 1, 2].map(i => (
+                      <motion.div
+                        key={i}
+                        animate={{ opacity: [0.2, 1, 0.2], scale: [0.8, 1.2, 0.8] }}
+                        transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.22 }}
+                        style={{
+                          width: 7, height: 7, borderRadius: "50%",
+                          background: paymentMode === "subscription" ? C.purple : C.sienna,
+                        }}
+                      />
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={handleCancelPayment}
+                    style={{
+                      display: "inline-flex", alignItems: "center", gap: 6,
+                      padding: "8px 18px", borderRadius: 8,
+                      background: "transparent",
+                      border: `1px solid rgba(255,255,255,0.08)`,
+                      color: `${C.muted}88`, fontSize: 12, cursor: "pointer",
+                      fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s",
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.color = C.muted; e.currentTarget.style.borderColor = "rgba(255,255,255,0.18)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.color = `${C.muted}88`; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}
+                  >
+                    <XCircle size={12} />
+                    Cancel
+                  </button>
+                </div>
               </div>
             </Card>
           </motion.div>
@@ -677,56 +810,62 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.3 }}
           >
-            <Card style={{ padding: "32px 28px" }}>
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
-                <div style={{
-                  width: 56, height: 56, borderRadius: 16,
-                  background: `${C.red}15`, border: `1px solid ${C.red}40`,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}>
-                  <XCircle size={26} color={C.red} strokeWidth={1.5} />
-                </div>
-                <div style={{ textAlign: "center" }}>
-                  <p style={{
-                    fontFamily: "'Cormorant Garamond', serif",
-                    fontSize: 20, fontWeight: 700, color: C.cream,
-                    margin: "0 0 6px",
+            <Card style={{ overflow: "hidden" }}>
+              <div style={{
+                height: 3,
+                background: `linear-gradient(90deg, ${C.red}, #f87171)`,
+              }} />
+              <div style={{ padding: "36px 28px" }}>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+                  <div style={{
+                    width: 52, height: 52, borderRadius: 14,
+                    background: `${C.red}12`, border: `1px solid ${C.red}35`,
+                    display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
-                    Payment unsuccessful
-                  </p>
-                  <p style={{ fontSize: 12, color: C.muted, margin: 0 }}>
-                    {paymentError || "Something went wrong. Please try again."}
-                  </p>
-                </div>
-                <div style={{ display: "flex", gap: 10 }}>
-                  <motion.button
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={handleRetryPayment}
-                    style={{
-                      display: "inline-flex", alignItems: "center", gap: 7,
-                      padding: "10px 22px", borderRadius: 99,
-                      background: `linear-gradient(135deg, ${C.sienna}, ${C.ochre})`,
-                      border: "none", color: "#0c0907",
-                      fontSize: 13, fontWeight: 700, cursor: "pointer",
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}
-                  >
-                    <RotateCcw size={13} color="#0c0907" />
-                    Try again
-                  </motion.button>
-                  <button
-                    onClick={onReset}
-                    style={{
-                      display: "inline-flex", alignItems: "center", gap: 7,
-                      padding: "10px 20px", borderRadius: 99,
-                      background: "transparent", border: `1px solid ${C.border}`,
-                      color: C.muted, fontSize: 13, cursor: "pointer",
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}
-                  >
-                    Upload a new photo
-                  </button>
+                    <XCircle size={24} color={C.red} strokeWidth={1.5} />
+                  </div>
+                  <div style={{ textAlign: "center" }}>
+                    <p style={{
+                      fontFamily: "'Cormorant Garamond', serif",
+                      fontSize: 20, fontWeight: 700, color: C.cream, margin: "0 0 6px",
+                    }}>
+                      Payment unsuccessful
+                    </p>
+                    <p style={{ fontSize: 12, color: C.muted, margin: 0 }}>
+                      {paymentError || "Something went wrong. Please try again."}
+                    </p>
+                  </div>
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={handleRetryPayment}
+                      style={{
+                        display: "inline-flex", alignItems: "center", gap: 7,
+                        padding: "10px 22px", borderRadius: 10,
+                        background: `linear-gradient(135deg, ${C.sienna}, ${C.ochre})`,
+                        border: "none", color: "#0c0907",
+                        fontSize: 13, fontWeight: 700, cursor: "pointer",
+                        fontFamily: "'DM Sans', sans-serif",
+                      }}
+                    >
+                      <RotateCcw size={13} color="#0c0907" />
+                      Try again
+                    </motion.button>
+                    <button
+                      onClick={onReset}
+                      style={{
+                        display: "inline-flex", alignItems: "center", gap: 7,
+                        padding: "10px 20px", borderRadius: 10,
+                        background: "transparent",
+                        border: `1px solid rgba(255,255,255,0.08)`,
+                        color: C.muted, fontSize: 13, cursor: "pointer",
+                        fontFamily: "'DM Sans', sans-serif",
+                      }}
+                    >
+                      Upload a new photo
+                    </button>
+                  </div>
                 </div>
               </div>
             </Card>
@@ -741,17 +880,16 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            {/* Success banner */}
             <motion.div
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               style={{
                 display: "flex", alignItems: "center", gap: 10,
                 padding: "10px 16px", borderRadius: 10, marginBottom: 12,
-                background: `${C.green}12`, border: `1px solid ${C.green}35`,
+                background: `${C.green}10`, border: `1px solid ${C.green}30`,
               }}
             >
-              <CheckCircle size={16} color={C.green} />
+              <CheckCircle size={15} color={C.green} />
               <span style={{ fontSize: 12, color: C.green, fontWeight: 600 }}>
                 {paymentMode === "subscription"
                   ? "Subscription active — generating your video! 🎉"
@@ -771,7 +909,7 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
 
       </AnimatePresence>
 
-      {/* ══ RESET BUTTON — after video ══ */}
+      {/* ══ RESET BUTTON ══ */}
       {videoRequested && (
         <div style={{ display: "flex", justifyContent: "center", paddingTop: 8 }}>
           <button
@@ -784,14 +922,8 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
               cursor: "pointer", transition: "all 0.2s",
               fontFamily: "'DM Sans', sans-serif",
             }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = `${C.sienna}18`;
-              e.currentTarget.style.borderColor = C.sienna;
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = "transparent";
-              e.currentTarget.style.borderColor = `${C.sienna}55`;
-            }}
+            onMouseEnter={e => { e.currentTarget.style.background = `${C.sienna}18`; e.currentTarget.style.borderColor = C.sienna; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.borderColor = `${C.sienna}55`; }}
           >
             <RotateCcw size={14} />
             New Photo
