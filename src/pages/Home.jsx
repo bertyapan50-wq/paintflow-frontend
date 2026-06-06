@@ -407,9 +407,25 @@ if (!showApp) {
       fontSize: 13, fontWeight: 600, cursor: "pointer",
       transition: "all 0.25s",
       fontFamily: "'DM Sans', sans-serif",
+background: showMasterGallery
+  ? `linear-gradient(135deg, ${C.sienna}, ${C.ochre})`
+  : "rgba(255,255,255,0.05)",
+backgroundSize: "200% auto",
+animation: showMasterGallery ? "none" : "masterShimmer 2.5s linear infinite",
     }}
   >
     🖼️ {showMasterGallery ? "Hide Masters Gallery" : "Paint Like a Master"}
+<span style={{
+  marginLeft: 8,
+  padding: "2px 8px",
+  borderRadius: 99,
+  background: "#5fa86d",
+  color: "#fff",
+  fontSize: 10,
+  fontWeight: 700,
+  letterSpacing: "0.06em",
+  textTransform: "uppercase",
+}}>FREE</span>
   </button>
 </motion.div>
 
@@ -522,6 +538,13 @@ if (!showApp) {
         </footer>
 
       </div>
+<style>{`
+  @keyframes masterShimmer {
+    0%   { box-shadow: 0 0 0px rgba(200,121,58,0); border-color: rgba(200,121,58,0.18); }
+    50%  { box-shadow: 0 0 20px rgba(200,121,58,0.4), 0 0 40px rgba(232,184,109,0.2); border-color: rgba(232,184,109,0.8); }
+    100% { box-shadow: 0 0 0px rgba(200,121,58,0); border-color: rgba(200,121,58,0.18); }
+  }
+`}</style>
     </div>
   );
 }
