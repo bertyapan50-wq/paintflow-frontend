@@ -9,6 +9,7 @@ import GuideDisplay from "../components/paint-guide/GuideDisplay";
 import LoadingGuide from "../components/paint-guide/LoadingGuide";
 import MediumSelector from "../components/paint-guide/MediumSelector";
 import LandingPage from "./LandingPage";
+import MasterGallery from "../components/paint-guide/MasterGallery";
 
 /* ── Atelier Noir tokens (mirrors LandingPage palette) ── */
 const C = {
@@ -71,9 +72,31 @@ export default function Home() {
   const [isLoading, setIsLoading]       = useState(false);
   const [loadingPhase, setLoadingPhase] = useState(0);
 const [paymentLoading, setPaymentLoading] = useState(false);
+const [showMasterGallery, setShowMasterGallery] = useState(false);
 
 const medium = "oil";
+const handleMasterSelect = (guide, imageUrl) => {
+  setIsLoading(true);
+  setShowMasterGallery(false);
+  setGuide(null);
 
+  fetch(imageUrl)
+    .then(res => res.blob())
+    .then(blob => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageUrl(reader.result);
+        setGuide(guide);
+        setIsLoading(false);
+      };
+      reader.readAsDataURL(blob);
+    })
+    .catch(() => {
+      setImageUrl(imageUrl);
+      setGuide(guide);
+      setIsLoading(false);
+    });
+};
 const handleGetStarted = async (planType) => {
   if (!planType) { setShowApp(true); return; }
   setPaymentLoading(true);
@@ -364,10 +387,49 @@ if (!showApp) {
                 </div>
 
                 <Divider style={{ marginBottom: 40 }} />
+               
+                <motion.div
+  initial={{ opacity: 0, y: 8 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ delay: 0.55 }}
+  style={{ marginTop: 24, display: "flex", justifyContent: "center", marginBottom: 32 }}
+>
+  <button
+    onClick={() => setShowMasterGallery(!showMasterGallery)}
+    style={{
+      display: "inline-flex", alignItems: "center", gap: 8,
+      padding: "10px 24px", borderRadius: 99,
+      background: showMasterGallery
+        ? `linear-gradient(135deg, ${C.sienna}, ${C.ochre})`
+        : "rgba(255,255,255,0.05)",
+      border: `1px solid ${showMasterGallery ? "transparent" : C.border}`,
+      color: showMasterGallery ? "#0c0907" : C.muted,
+      fontSize: 13, fontWeight: 600, cursor: "pointer",
+      transition: "all 0.25s",
+      fontFamily: "'DM Sans', sans-serif",
+    }}
+  >
+    🖼️ {showMasterGallery ? "Hide Masters Gallery" : "Paint Like a Master"}
+  </button>
+</motion.div>
 
              
 
                 {/* ── Image Uploader ── */}
+                 <AnimatePresence>
+  {showMasterGallery && (
+    <motion.div
+      key="master-gallery"
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: "auto" }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ duration: 0.35 }}
+      style={{ overflow: "hidden", marginBottom: 32 }}
+    >
+      <MasterGallery onSelectMaster={handleMasterSelect} />
+    </motion.div>
+  )}
+</AnimatePresence>
                 <motion.div
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
