@@ -94,6 +94,10 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
   // "onetime" | "subscription"
   const [paymentMode, setPaymentMode]           = useState(null);
   const [accessToken, setAccessToken]           = useState(null);
+  const [showEmailModal, setShowEmailModal]     = useState(false);
+  const [pendingPaymentType, setPendingPaymentType] = useState(null);
+  const [emailInput, setEmailInput]             = useState("");
+  const [nameInput, setNameInput]               = useState("");
 
   const pollIntervalRef   = useRef(null);
   const paymentIdRef      = useRef(null);
@@ -130,7 +134,7 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
   };
 
   /* ── One-time payment ── */
-  const handleOneTimePayment = async () => {
+  const handleOneTimePayment = async (email = "", name = "") => {
     setPaymentMode("onetime");
     setPaymentState("creating");
     setPaymentError(null);
@@ -139,7 +143,7 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
       const res = await fetch(`${API_URL}/api/create-payment`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ skillLevel, customerEmail }),
+        body: JSON.stringify({ skillLevel, customerEmail: email || customerEmail, customerName: name || "PaintFlow User" }),
       });
 
       if (!res.ok) {
@@ -174,7 +178,7 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
   };
 
   /* ── Subscription payment ── */
-  const handleSubscriptionPayment = async () => {
+  const handleSubscriptionPayment = async (email = "", name = "") => {
     setPaymentMode("subscription");
     setPaymentState("creating");
     setPaymentError(null);
@@ -183,7 +187,7 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
       const res = await fetch(`${API_URL}/api/create-subscription`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customerEmail }),
+        body: JSON.stringify({ customerEmail: email || customerEmail, customerName: name || "PaintFlow User" }),
       });
 
       if (!res.ok) {
@@ -214,6 +218,24 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
       console.error("❌ Subscription error:", err);
       setPaymentState("failed");
       setPaymentError(err.message || "Something went wrong. Please try again.");
+    }
+  };
+
+  const handlePayClick = (type) => {
+    setPendingPaymentType(type);
+    setShowEmailModal(true);
+  };
+
+  const handleModalSubmit = () => {
+    if (emailInput && !emailInput.includes("@")) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+    setShowEmailModal(false);
+    if (pendingPaymentType === "subscription") {
+      handleSubscriptionPayment(emailInput, nameInput);
+    } else {
+      handleOneTimePayment(emailInput, nameInput);
     }
   };
 
@@ -463,7 +485,7 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
                 <motion.button
                   whileHover={{ scale: 1.03, y: -1 }}
                   whileTap={{ scale: 0.97 }}
-                  onClick={handleOneTimePayment}
+                  onClick={() => handlePayClick("onetime")}
                   style={{
                     display: "inline-flex", alignItems: "center", gap: 8,
                     padding: "10px 22px", borderRadius: 99,
@@ -482,7 +504,7 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
                 <motion.button
                   whileHover={{ scale: 1.03, y: -1 }}
                   whileTap={{ scale: 0.97 }}
-                  onClick={handleSubscriptionPayment}
+                  onClick={() => handlePayClick("subscription")}
                   style={{
                     display: "inline-flex", alignItems: "center", gap: 8,
                     padding: "10px 22px", borderRadius: 99,
@@ -799,6 +821,119 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
         </div>
       )}
 
+    {/* ══ EMAIL CAPTURE MODAL ══ */}
+      {showEmailModal && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 100,
+          background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          padding: 20,
+        }}
+          onClick={() => setShowEmailModal(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: "#16100a",
+              border: "1px solid rgba(200,121,58,0.3)",
+              borderRadius: 20, padding: "36px 32px",
+              width: "100%", maxWidth: 420,
+              boxShadow: "0 0 60px rgba(200,121,58,0.15)",
+            }}
+          >
+            <div style={{ textAlign: "center", marginBottom: 28 }}>
+              <div style={{
+                width: 48, height: 48, borderRadius: 14,
+                background: "linear-gradient(135deg, #c8793a, #8b4513)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                margin: "0 auto 16px", fontSize: 22,
+              }}>🖌️</div>
+              <h2 style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: 26, fontWeight: 700,
+                color: "#f2e8d8", margin: "0 0 8px",
+              }}>Almost there!</h2>
+              <p style={{ color: "#8a7660", fontSize: 13, lineHeight: 1.6, margin: 0 }}>
+                Enter your email so we can send your payment confirmation and tutorial access.
+              </p>
+            </div>
+            <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(200,121,58,0.3), transparent)", marginBottom: 24 }} />
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
+              <div>
+                <label style={{ fontSize: 11, color: "#8a7660", letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>
+                  Email Address *
+                </label>
+                <input
+                  type="email"
+                  placeholder="you@example.com"
+                  value={emailInput}
+                  onChange={e => setEmailInput(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && handleModalSubmit()}
+                  autoFocus
+                  style={{
+                    width: "100%", padding: "12px 14px",
+                    borderRadius: 10, fontSize: 14,
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(200,121,58,0.25)",
+                    color: "#f2e8d8", outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, color: "#8a7660", letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>
+                  Name (optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Your name"
+                  value={nameInput}
+                  onChange={e => setNameInput(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && handleModalSubmit()}
+                  style={{
+                    width: "100%", padding: "12px 14px",
+                    borderRadius: 10, fontSize: 14,
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(200,121,58,0.25)",
+                    color: "#f2e8d8", outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
+            </div>
+            <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(200,121,58,0.3), transparent)", marginBottom: 24 }} />
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <button
+                onClick={handleModalSubmit}
+                style={{
+                  width: "100%", padding: "14px",
+                  borderRadius: 99, fontSize: 14, fontWeight: 600,
+                  background: "linear-gradient(135deg, #c8793a, #a05a28)",
+                  color: "#fff", border: "none", cursor: "pointer",
+                  boxShadow: "0 0 30px rgba(200,121,58,0.30)",
+                }}
+              >
+                Continue to Payment →
+              </button>
+              <button
+                onClick={() => setShowEmailModal(false)}
+                style={{
+                  width: "100%", padding: "12px",
+                  borderRadius: 99, fontSize: 13,
+                  background: "transparent",
+                  border: "1px solid rgba(200,121,58,0.15)",
+                  color: "#8a7660", cursor: "pointer",
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </motion.div>
   );
 }

@@ -73,6 +73,10 @@ export default function Home() {
   const [loadingPhase, setLoadingPhase] = useState(0);
 const [paymentLoading, setPaymentLoading] = useState(false);
 const [showMasterGallery, setShowMasterGallery] = useState(false);
+const [showEmailModal, setShowEmailModal] = useState(false);
+const [pendingPlanType, setPendingPlanType] = useState(null);
+const [emailInput, setEmailInput] = useState("");
+const [nameInput, setNameInput] = useState("");
 
 const medium = "oil";
 const handleMasterSelect = (guide, imageUrl) => {
@@ -99,15 +103,29 @@ const handleMasterSelect = (guide, imageUrl) => {
 };
 const handleGetStarted = async (planType) => {
   if (!planType) { setShowApp(true); return; }
+  setPendingPlanType(planType);
+  setShowEmailModal(true);
+};
+
+const handleModalSubmit = async () => {
+  if (emailInput && !emailInput.includes("@")) {
+    alert("Please enter a valid email address.");
+    return;
+  }
+  setShowEmailModal(false);
   setPaymentLoading(true);
   try {
-    const endpoint = planType === "subscription"
+    const endpoint = pendingPlanType === "subscription"
       ? `${API_URL}/api/create-subscription`
       : `${API_URL}/api/create-payment`;
     const res = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ skillLevel, customerName: "PaintFlow User" }),
+      body: JSON.stringify({
+        skillLevel,
+        customerEmail: emailInput,
+        customerName: nameInput || "PaintFlow User",
+      }),
     });
     const data = await res.json();
     if (data.payment_link) {
@@ -124,7 +142,125 @@ const handleGetStarted = async (planType) => {
 };
 
 if (!showApp) {
-  return <LandingPage onGetStarted={handleGetStarted} paymentLoading={paymentLoading} />;
+  return (
+    <>
+      <LandingPage onGetStarted={handleGetStarted} paymentLoading={paymentLoading} />
+      {showEmailModal && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 100,
+          background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          padding: 20,
+        }}
+          onClick={() => setShowEmailModal(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: "#16100a",
+              border: "1px solid rgba(200,121,58,0.3)",
+              borderRadius: 20, padding: "36px 32px",
+              width: "100%", maxWidth: 420,
+              boxShadow: "0 0 60px rgba(200,121,58,0.15)",
+            }}
+          >
+            <div style={{ textAlign: "center", marginBottom: 28 }}>
+              <div style={{
+                width: 48, height: 48, borderRadius: 14,
+                background: "linear-gradient(135deg, #c8793a, #8b4513)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                margin: "0 auto 16px", fontSize: 22,
+              }}>🖌️</div>
+              <h2 style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: 26, fontWeight: 700,
+                color: "#f2e8d8", margin: "0 0 8px",
+              }}>Almost there!</h2>
+              <p style={{ color: "#8a7660", fontSize: 13, lineHeight: 1.6, margin: 0 }}>
+                Enter your email so we can send your payment confirmation and tutorial access.
+              </p>
+            </div>
+            <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(200,121,58,0.3), transparent)", marginBottom: 24 }} />
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
+              <div>
+                <label style={{ fontSize: 11, color: "#8a7660", letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>
+                  Email Address *
+                </label>
+                <input
+                  type="email"
+                  placeholder="you@example.com"
+                  value={emailInput}
+                  onChange={e => setEmailInput(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && handleModalSubmit()}
+                  autoFocus
+                  style={{
+                    width: "100%", padding: "12px 14px",
+                    borderRadius: 10, fontSize: 14,
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(200,121,58,0.25)",
+                    color: "#f2e8d8", outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: 11, color: "#8a7660", letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>
+                  Name (optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Your name"
+                  value={nameInput}
+                  onChange={e => setNameInput(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && handleModalSubmit()}
+                  style={{
+                    width: "100%", padding: "12px 14px",
+                    borderRadius: 10, fontSize: 14,
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(200,121,58,0.25)",
+                    color: "#f2e8d8", outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
+            </div>
+            <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(200,121,58,0.3), transparent)", marginBottom: 24 }} />
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <button
+                onClick={handleModalSubmit}
+                disabled={paymentLoading}
+                style={{
+                  width: "100%", padding: "14px",
+                  borderRadius: 99, fontSize: 14, fontWeight: 600,
+                  background: "linear-gradient(135deg, #c8793a, #a05a28)",
+                  color: "#fff", border: "none", cursor: "pointer",
+                  boxShadow: "0 0 30px rgba(200,121,58,0.30)",
+                  opacity: paymentLoading ? 0.7 : 1,
+                }}
+              >
+                {paymentLoading ? "Redirecting..." : "Continue to Payment →"}
+              </button>
+              <button
+                onClick={() => setShowEmailModal(false)}
+                style={{
+                  width: "100%", padding: "12px",
+                  borderRadius: 99, fontSize: 13,
+                  background: "transparent",
+                  border: "1px solid rgba(200,121,58,0.15)",
+                  color: "#8a7660", cursor: "pointer",
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </>
+  );
 }
 
   /* ── API call ── */
@@ -538,6 +674,128 @@ animation: showMasterGallery ? "none" : "masterShimmer 2.5s linear infinite",
         </footer>
 
       </div>
+{/* ══ EMAIL CAPTURE MODAL ══ */}
+{showEmailModal && (
+  <div style={{
+    position: "fixed", inset: 0, zIndex: 100,
+    background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)",
+    display: "flex", alignItems: "center", justifyContent: "center",
+    padding: 20,
+  }}
+    onClick={() => setShowEmailModal(false)}
+  >
+    <motion.div
+      initial={{ opacity: 0, scale: 0.92, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+      onClick={e => e.stopPropagation()}
+      style={{
+        background: "#16100a",
+        border: "1px solid rgba(200,121,58,0.3)",
+        borderRadius: 20,
+        padding: "36px 32px",
+        width: "100%",
+        maxWidth: 420,
+        boxShadow: "0 0 60px rgba(200,121,58,0.15)",
+      }}
+    >
+      <div style={{ textAlign: "center", marginBottom: 28 }}>
+        <div style={{
+          width: 48, height: 48, borderRadius: 14,
+          background: "linear-gradient(135deg, #c8793a, #8b4513)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          margin: "0 auto 16px", fontSize: 22,
+        }}>🖌️</div>
+        <h2 style={{
+          fontFamily: "'Cormorant Garamond', serif",
+          fontSize: 26, fontWeight: 700,
+          color: "#f2e8d8", margin: "0 0 8px",
+        }}>Almost there!</h2>
+        <p style={{ color: "#8a7660", fontSize: 13, lineHeight: 1.6, margin: 0 }}>
+          Enter your email so we can send your payment confirmation and tutorial access.
+        </p>
+      </div>
+
+      <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(200,121,58,0.3), transparent)", marginBottom: 24 }} />
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
+        <div>
+          <label style={{ fontSize: 11, color: "#8a7660", letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>
+            Email Address *
+          </label>
+          <input
+            type="email"
+            placeholder="you@example.com"
+            value={emailInput}
+            onChange={e => setEmailInput(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && handleModalSubmit()}
+            autoFocus
+            style={{
+              width: "100%", padding: "12px 14px",
+              borderRadius: 10, fontSize: 14,
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(200,121,58,0.25)",
+              color: "#f2e8d8", outline: "none",
+              boxSizing: "border-box",
+            }}
+          />
+        </div>
+        <div>
+          <label style={{ fontSize: 11, color: "#8a7660", letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: 6 }}>
+            Name (optional)
+          </label>
+          <input
+            type="text"
+            placeholder="Your name"
+            value={nameInput}
+            onChange={e => setNameInput(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && handleModalSubmit()}
+            style={{
+              width: "100%", padding: "12px 14px",
+              borderRadius: 10, fontSize: 14,
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(200,121,58,0.25)",
+              color: "#f2e8d8", outline: "none",
+              boxSizing: "border-box",
+            }}
+          />
+        </div>
+      </div>
+
+      <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(200,121,58,0.3), transparent)", marginBottom: 24 }} />
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <button
+          onClick={handleModalSubmit}
+          disabled={paymentLoading}
+          style={{
+            width: "100%", padding: "14px",
+            borderRadius: 99, fontSize: 14, fontWeight: 600,
+            background: "linear-gradient(135deg, #c8793a, #a05a28)",
+            color: "#fff", border: "none", cursor: "pointer",
+            boxShadow: "0 0 30px rgba(200,121,58,0.30)",
+            opacity: paymentLoading ? 0.7 : 1,
+          }}
+        >
+          {paymentLoading ? "Redirecting..." : "Continue to Payment →"}
+        </button>
+        <button
+          onClick={() => setShowEmailModal(false)}
+          style={{
+            width: "100%", padding: "12px",
+            borderRadius: 99, fontSize: 13,
+            background: "transparent",
+            border: "1px solid rgba(200,121,58,0.15)",
+            color: "#8a7660", cursor: "pointer",
+          }}
+        >
+          Cancel
+        </button>
+      </div>
+    </motion.div>
+  </div>
+)}
+
 <style>{`
   @keyframes masterShimmer {
     0%   { box-shadow: 0 0 0px rgba(200,121,58,0); border-color: rgba(200,121,58,0.18); }
