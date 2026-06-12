@@ -26,9 +26,8 @@ const SKILL_BADGE = {
 };
 
 const PRICE = {
-  beginner:     "$0.99",
-  intermediate: "$1.99",
-  advanced:     "$2.99",
+  monthly: "$9.99/mo",
+  annual:  "$99/yr",
 };
 
 /* ── Thin gold divider ── */
@@ -105,7 +104,7 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
   const checkoutTabRef    = useRef(null);
 
   const badge = SKILL_BADGE[skillLevel] ?? SKILL_BADGE.intermediate;
-  const price = PRICE[skillLevel] ?? "$1.99";
+  
 
   /* ── Cleanup on unmount ── */
   useEffect(() => {
@@ -451,7 +450,7 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
                       fontSize: 12, color: C.ochre, fontWeight: 700,
                     }}>
                       <CreditCard size={11} color={C.ochre} />
-                      {price} one-time
+                      $99/yr annual
                     </div>
 
                     {/* Subscription badge */}
@@ -462,7 +461,7 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
                       fontSize: 12, color: C.purple, fontWeight: 700,
                     }}>
                       <Zap size={11} color={C.purple} />
-                      $9.99/mo unlimited
+                      $9.99/mo monthly
                     </div>
 
                     <div style={{
@@ -497,7 +496,7 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
                   }}
                 >
                   <CreditCard size={14} color="#0c0907" strokeWidth={2.5} />
-                  Pay — {price}
+                  Go Annual — $99/yr
                 </motion.button>
 
                 {/* Subscription button */}
@@ -516,7 +515,7 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
                   }}
                 >
                   <Zap size={14} color="#fff" strokeWidth={2.5} />
-                  Subscribe — $9.99/mo
+                  Monthly — $9.99/mo
                 </motion.button>
 
                 <button
@@ -542,7 +541,7 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
                 marginTop: 12, paddingTop: 12,
                 borderTop: `1px solid ${C.border}`,
               }}>
-                💡 <strong style={{ color: `${C.muted}cc` }}>Subscription</strong> — unlimited video generation for all your tutorials. Cancel anytime.
+                💡 <strong style={{ color: `${C.muted}cc` }}>Annual</strong> — save 2 months vs monthly. Or go monthly for flexibility. Cancel anytime.
               </p>
             </Card>
           </motion.div>
