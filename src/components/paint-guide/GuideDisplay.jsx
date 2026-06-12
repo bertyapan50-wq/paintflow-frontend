@@ -531,57 +531,79 @@ const handleAnnualPayment = async (email = "", name = "") => {
                 </div>
 
                 {/* Primary CTA — Annual */}
-                <motion.button
-                  whileHover={{ scale: 1.02, y: -1 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => handlePayClick("annual")}
-                  style={{
-                    width: "100%",
-                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                    padding: "13px",
-                    borderRadius: 10,
-                    background: `linear-gradient(135deg, ${C.sienna}, ${C.ochre})`,
-                    border: "none", color: "#0c0907",
-                    fontSize: 14, fontWeight: 700, cursor: "pointer",
-                    marginBottom: 8,
-                    boxShadow: `0 0 24px ${C.sienna}35`,
-                    fontFamily: "'DM Sans', sans-serif",
-                  }}
-                >
-                  <CreditCard size={15} color="#0c0907" strokeWidth={2.5} />
-                  Go Annual — $99 / year
-                </motion.button>
+<motion.button
+  whileHover={{ scale: 1.02, y: -1 }}
+  whileTap={{ scale: 0.97 }}
+  onClick={() => handlePayClick("annual")}
+  style={{
+    width: "100%",
+    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+    padding: "13px",
+    borderRadius: 10,
+    background: `linear-gradient(135deg, ${C.sienna}, ${C.ochre})`,
+    border: "none", color: "#0c0907",
+    fontSize: 14, fontWeight: 700, cursor: "pointer",
+    marginBottom: 8,
+    boxShadow: `0 0 24px ${C.sienna}35`,
+    fontFamily: "'DM Sans', sans-serif",
+    position: "relative", overflow: "hidden",
+  }}
+>
+  <motion.span
+    animate={{ x: ["-100%", "200%"] }}
+    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }}
+    style={{
+      position: "absolute", top: 0, left: 0,
+      width: "50%", height: "100%",
+      background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent)",
+      pointerEvents: "none",
+    }}
+  />
+  <CreditCard size={15} color="#0c0907" strokeWidth={2.5} />
+  Go Annual — $99 / year
+</motion.button>
 
                 {/* Secondary CTA — Monthly */}
-                <motion.button
-                  whileHover={{ scale: 1.02, y: -1 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => handlePayClick("subscription")}
-                  style={{
-                    width: "100%",
-                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                    padding: "11px",
-                    borderRadius: 10,
-                    background: "transparent",
-                    border: `1px solid ${C.border}`,
-                    color: C.muted,
-                    fontSize: 13, fontWeight: 500, cursor: "pointer",
-                    marginBottom: 8,
-                    fontFamily: "'DM Sans', sans-serif",
-                    transition: "all 0.2s",
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.borderColor = `${C.purple}60`;
-                    e.currentTarget.style.color = C.cream;
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.borderColor = C.border;
-                    e.currentTarget.style.color = C.muted;
-                  }}
-                >
-                  <Zap size={14} strokeWidth={2} />
-                  Go Monthly — $9.99 / mo
-                </motion.button>
+<motion.button
+  whileHover={{ scale: 1.02, y: -1 }}
+  whileTap={{ scale: 0.97 }}
+  onClick={() => handlePayClick("subscription")}
+  style={{
+    width: "100%",
+    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+    padding: "11px",
+    borderRadius: 10,
+    background: "transparent",
+    border: `1px solid ${C.border}`,
+    color: C.muted,
+    fontSize: 13, fontWeight: 500, cursor: "pointer",
+    marginBottom: 8,
+    fontFamily: "'DM Sans', sans-serif",
+    transition: "all 0.2s",
+    position: "relative", overflow: "hidden",
+  }}
+  onMouseEnter={e => {
+    e.currentTarget.style.borderColor = `${C.purple}60`;
+    e.currentTarget.style.color = C.cream;
+  }}
+  onMouseLeave={e => {
+    e.currentTarget.style.borderColor = C.border;
+    e.currentTarget.style.color = C.muted;
+  }}
+>
+  <motion.span
+    animate={{ x: ["-100%", "200%"] }}
+    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", repeatDelay: 1.5 }}
+    style={{
+      position: "absolute", top: 0, left: 0,
+      width: "50%", height: "100%",
+      background: `linear-gradient(90deg, transparent, rgba(200,121,58,0.15), transparent)`,
+      pointerEvents: "none",
+    }}
+  />
+  <Zap size={14} strokeWidth={2} />
+  Go Monthly — $9.99 / mo
+</motion.button>
 
                 {/* Skip */}
                 <button
