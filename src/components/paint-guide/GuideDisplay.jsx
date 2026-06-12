@@ -219,7 +219,43 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
       setPaymentError(err.message || "Something went wrong. Please try again.");
     }
   };
+const handleAnnualPayment = async (email = "", name = "") => {
+  setPaymentMode("onetime");
+  setPaymentState("creating");
+  setPaymentError(null);
 
+  try {
+    const res = await fetch(`${API_URL}/api/create-annual`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ customerEmail: email, customerName: name || "PaintFlow User" }),
+    });
+
+    const { payment_id, payment_link } = await res.json();
+    paymentIdRef.current = payment_id;
+    checkoutTabRef.current = window.open(payment_link, "_blank");
+    setPaymentState("waiting");
+
+    startPolling(async () => {
+      try {
+        const verifyRes = await fetch(`${API_URL}/api/verify-annual/${payment_id}`);
+        const { active, token } = await verifyRes.json();
+        if (active) {
+          clearInterval(pollIntervalRef.current);
+          if (checkoutTabRef.current) checkoutTabRef.current.close();
+          setAccessToken(token);
+          setPaymentState("idle");
+          setVideoRequested(true);
+        }
+      } catch { /* silent fail */ }
+    });
+
+  } catch (err) {
+    console.error("❌ Annual error:", err);
+    setPaymentState("failed");
+    setPaymentError(err.message || "Something went wrong. Please try again.");
+  }
+};
   const handlePayClick = (type) => {
     setPendingPaymentType(type);
     setShowEmailModal(true);
@@ -232,10 +268,12 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
     }
     setShowEmailModal(false);
     if (pendingPaymentType === "subscription") {
-      handleSubscriptionPayment(emailInput, nameInput);
-    } else {
-      handleOneTimePayment(emailInput, nameInput);
-    }
+  handleSubscriptionPayment(emailInput, nameInput);
+} else if (pendingPaymentType === "annual") {
+  handleAnnualPayment(emailInput, nameInput);
+} else {
+  handleOneTimePayment(emailInput, nameInput);
+}
   };
 
   const handleCancelPayment = () => {
@@ -484,7 +522,7 @@ const [videoRequested, setVideoRequested]     = useState(DEV_BYPASS_PAYMENT);
                 <motion.button
                   whileHover={{ scale: 1.03, y: -1 }}
                   whileTap={{ scale: 0.97 }}
-                  onClick={() => handlePayClick("onetime")}
+                  onClick={() => handlePayClick("annual")}
                   style={{
                     display: "inline-flex", alignItems: "center", gap: 8,
                     padding: "10px 22px", borderRadius: 99,
