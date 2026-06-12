@@ -136,18 +136,18 @@ function GoldDivider() {
 
 const PLANS = [
   {
-    id: "one-time", label: "One Tutorial", price: "$2.99", period: "one-time",
+    id: "monthly", label: "Monthly", price: "$9.99", period: "per month",
     accent: "#7a9ab5", badge: null,
-    description: "Perfect for trying it out with a single painting project.",
-    features: ["1 AI-generated oil painting tutorial", "Full 10-step classical technique", "Voice-narrated guide", "Color mixing instructions", "Layer-by-layer breakdown", "Painting preview image"],
-    cta: "Get One Tutorial", type: "one-time",
+    description: "Unlimited tutorials every month. Cancel anytime.",
+    features: ["Unlimited AI oil painting tutorials", "All skill levels (Beginner → Advanced)", "Full voice narration on every guide", "Color mixing & pigment names", "Layer-by-layer breakdown", "Cancel anytime"],
+    cta: "Start Monthly", type: "subscription",
   },
   {
-    id: "subscription", label: "Unlimited", price: "$9.99", period: "per month",
+    id: "annual", label: "Annual", price: "$99", period: "per year",
     accent: "#c8793a", badge: "Best Value",
-    description: "For painters who want to practice with any photo, anytime.",
-    features: ["Unlimited AI tutorials every month", "All skill levels (Beginner → Advanced)", "Full voice narration on every guide", "Priority tutorial generation", "Color mixing & pigment names", "Cancel anytime"],
-    cta: "Start Subscription", type: "subscription",
+    description: "Best value for serious painters — 2 months free vs monthly.",
+    features: ["Unlimited AI tutorials for a full year", "All skill levels (Beginner → Advanced)", "Full voice narration on every guide", "Priority tutorial generation", "Color mixing & pigment names", "2 months free vs monthly"],
+    cta: "Start Annual", type: "annual",
   },
 ];
 
@@ -295,7 +295,7 @@ export default function LandingPage({ onGetStarted }) {
               </a>
             </motion.div>
             <motion.div {...fadeIn(0.5)} className="flex flex-wrap items-center justify-center gap-2 pt-2">
-              {["💳 $2.99 one tutorial", "🔁 $9.99/mo unlimited", "🎙️ Voice Narration", "🖌️ Old Master Technique"].map((f) => (
+              {["🔁 $9.99/mo monthly", "📅 $99/yr annual", "🎙️ Voice Narration", "🖌️ Old Master Technique"].map((f) => (
                 <span key={f} className="text-xs px-3 py-1.5 rounded-full"
                   style={{ border: "1px solid rgba(200,121,58,0.15)", background: "rgba(200,121,58,0.04)", color: "#8a7660" }}>
                   {f}
@@ -424,7 +424,7 @@ export default function LandingPage({ onGetStarted }) {
                 Simple, <em style={{ color: "#c8793a" }}>honest</em> pricing.
               </h3>
               <p className="text-sm max-w-sm mx-auto" style={{ color: "#6a5a4a" }}>
-                No subscriptions required to try. Pay once for one tutorial, or go unlimited for serious painters.
+                Choose monthly for flexibility, or save 2 months with an annual plan.
               </p>
               <GoldDivider />
             </motion.div>
@@ -462,20 +462,20 @@ export default function LandingPage({ onGetStarted }) {
             </p>
             <PaintSwatches />
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <button onClick={() => handleGetStarted("one-time")}
+              <button onClick={() => handleGetStarted("annual")}
                 className="group inline-flex items-center gap-3 px-10 py-4 rounded-full text-white font-semibold text-sm transition-all relative overflow-hidden"
                 style={{ background: "linear-gradient(135deg, #c8793a, #a05a28)", boxShadow: "0 0 50px rgba(200,121,58,0.30)" }}
                 onMouseEnter={e => e.currentTarget.style.boxShadow = "0 0 70px rgba(200,121,58,0.50)"}
                 onMouseLeave={e => e.currentTarget.style.boxShadow = "0 0 50px rgba(200,121,58,0.30)"}>
                 <span style={{ position: "absolute", top: "-50%", left: "-75%", width: "50%", height: "200%", background: "rgba(255,255,255,0.18)", transform: "skewX(-20deg)", animation: "btnShine 2.5s infinite", pointerEvents: "none" }} />
-                Try for $2.99
+                Go Annual — $99/yr
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
               <button onClick={() => handleGetStarted("subscription")}
                 className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-sm font-medium transition-all"
                 style={{ border: "1px solid rgba(200,121,58,0.2)", background: "rgba(200,121,58,0.05)", color: "#8a7660" }}>
                 <Zap className="w-3.5 h-3.5" style={{ color: "#c8793a" }} />
-                Go unlimited — $9.99/mo
+                Monthly — $9.99/mo
               </button>
             </div>
           </motion.div>
