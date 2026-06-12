@@ -443,7 +443,7 @@ const handleAnnualPayment = async (email = "", name = "") => {
       {/* ══ VIDEO SECTION ══ */}
       <AnimatePresence mode="wait">
 
-        {/* ── 1. Idle prompt card ── */}
+        {/* ── 1. Idle prompt card — Variant B ── */}
         {!videoRequested && paymentState === "idle" && (
           <motion.div
             key="video-prompt"
@@ -452,135 +452,168 @@ const handleAnnualPayment = async (email = "", name = "") => {
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.3 }}
           >
-            <Card style={{ padding: "24px 28px" }}>
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 18 }}>
-                <div style={{
-                  width: 48, height: 48, borderRadius: 14, flexShrink: 0,
-                  background: `linear-gradient(135deg, ${C.sienna}22, ${C.ochre}10)`,
-                  border: `1px solid ${C.sienna}35`,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  boxShadow: `0 0 20px ${C.sienna}18`,
-                }}>
-                  <Film size={22} color={C.sienna} strokeWidth={1.6} />
-                </div>
+            <Card style={{ overflow: "hidden" }}>
 
-                <div style={{ flex: 1 }}>
-                  <h3 style={{
-                    fontFamily: "'Cormorant Garamond', serif",
-                    fontSize: 20, fontWeight: 700, color: C.cream,
-                    margin: "0 0 5px", letterSpacing: "-0.01em",
+              {/* Header */}
+              <div style={{ padding: "22px 24px 18px", borderBottom: `1px solid ${C.border}` }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                  <div style={{
+                    width: 42, height: 42, borderRadius: 12, flexShrink: 0,
+                    background: `${C.sienna}18`,
+                    border: `1px solid ${C.sienna}35`,
+                    display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
-                    Want to generate a Tutorial Video?
-                  </h3>
-                  <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.6, margin: "0 0 12px" }}>
-                    The video is rendered step by step using AI — this may take a few minutes
-                    depending on the complexity of your image and the number of steps.
-                  </p>
-
-                  {/* Pricing options */}
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-
-                    {/* One-time badge */}
-                    <div style={{
-                      display: "inline-flex", alignItems: "center", gap: 5,
-                      padding: "4px 12px", borderRadius: 8,
-                      background: `${C.sienna}15`, border: `1px solid ${C.sienna}40`,
-                      fontSize: 12, color: C.ochre, fontWeight: 700,
+                    <Film size={20} color={C.sienna} strokeWidth={1.6} />
+                  </div>
+                  <div>
+                    <h3 style={{
+                      fontFamily: "'Cormorant Garamond', serif",
+                      fontSize: 18, fontWeight: 700, color: C.cream,
+                      margin: "0 0 3px", letterSpacing: "-0.01em",
                     }}>
-                      <CreditCard size={11} color={C.ochre} />
-                      $99/yr annual
-                    </div>
-
-                    {/* Subscription badge */}
-                    <div style={{
-                      display: "inline-flex", alignItems: "center", gap: 5,
-                      padding: "4px 12px", borderRadius: 8,
-                      background: `${C.purple}15`, border: `1px solid ${C.purple}40`,
-                      fontSize: 12, color: C.purple, fontWeight: 700,
-                    }}>
-                      <Zap size={11} color={C.purple} />
-                      $9.99/mo monthly
-                    </div>
-
-                    <div style={{
-                      display: "inline-flex", alignItems: "center", gap: 5,
-                      padding: "4px 10px", borderRadius: 8,
-                      background: `${C.ochre}10`, border: `1px solid ${C.ochre}25`,
-                      fontSize: 11, color: `${C.ochre}cc`,
-                    }}>
-                      <Info size={11} color={C.ochre} />
-                      Secure via Dodo Payments
-                    </div>
+                      Generate Tutorial Video
+                    </h3>
+                    <p style={{ fontSize: 12, color: C.muted, margin: 0, lineHeight: 1.5 }}>
+                      AI-rendered step by step · takes a few minutes · yours forever
+                    </p>
                   </div>
                 </div>
               </div>
 
-              {/* Action buttons */}
-              <div style={{ display: "flex", gap: 10, marginTop: 20, flexWrap: "wrap" }}>
+              {/* Body */}
+              <div style={{ padding: "20px 24px" }}>
 
-                {/* One-time pay button */}
+                {/* Plan selector cards */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
+
+                  {/* Annual — featured */}
+                  <div style={{
+                    border: `1px solid ${C.sienna}70`,
+                    borderRadius: 12,
+                    padding: "16px 14px",
+                    background: `${C.sienna}08`,
+                    position: "relative",
+                  }}>
+                    <div style={{
+                      position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)",
+                      background: C.sienna,
+                      color: "#0c0907",
+                      fontSize: 10, fontWeight: 700,
+                      padding: "2px 10px", borderRadius: 99,
+                      whiteSpace: "nowrap",
+                    }}>
+                      Save 2 months
+                    </div>
+                    <p style={{ fontSize: 10, color: C.muted, margin: "0 0 6px", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                      Annual
+                    </p>
+                    <p style={{ fontSize: 24, fontWeight: 700, color: C.cream, margin: 0, lineHeight: 1 }}>
+                      $99<span style={{ fontSize: 13, fontWeight: 400, color: C.muted }}>/yr</span>
+                    </p>
+                    <p style={{ fontSize: 11, color: C.muted, margin: "4px 0 0" }}>$8.25/mo · best value</p>
+                  </div>
+
+                  {/* Monthly */}
+                  <div style={{
+                    border: `1px solid ${C.border}`,
+                    borderRadius: 12,
+                    padding: "16px 14px",
+                    background: C.card,
+                  }}>
+                    <p style={{ fontSize: 10, color: C.muted, margin: "0 0 6px", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                      Monthly
+                    </p>
+                    <p style={{ fontSize: 24, fontWeight: 700, color: C.cream, margin: 0, lineHeight: 1 }}>
+                      $9.99<span style={{ fontSize: 13, fontWeight: 400, color: C.muted }}>/mo</span>
+                    </p>
+                    <p style={{ fontSize: 11, color: C.muted, margin: "4px 0 0" }}>Cancel anytime</p>
+                  </div>
+                </div>
+
+                {/* Primary CTA — Annual */}
                 <motion.button
-                  whileHover={{ scale: 1.03, y: -1 }}
+                  whileHover={{ scale: 1.02, y: -1 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => handlePayClick("annual")}
                   style={{
-                    display: "inline-flex", alignItems: "center", gap: 8,
-                    padding: "10px 22px", borderRadius: 99,
+                    width: "100%",
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                    padding: "13px",
+                    borderRadius: 10,
                     background: `linear-gradient(135deg, ${C.sienna}, ${C.ochre})`,
                     border: "none", color: "#0c0907",
-                    fontSize: 13, fontWeight: 700, cursor: "pointer",
-                    boxShadow: `0 0 24px ${C.sienna}40`,
+                    fontSize: 14, fontWeight: 700, cursor: "pointer",
+                    marginBottom: 8,
+                    boxShadow: `0 0 24px ${C.sienna}35`,
                     fontFamily: "'DM Sans', sans-serif",
                   }}
                 >
-                  <CreditCard size={14} color="#0c0907" strokeWidth={2.5} />
-                  Go Annual — $99/yr
+                  <CreditCard size={15} color="#0c0907" strokeWidth={2.5} />
+                  Go Annual — $99 / year
                 </motion.button>
 
-                {/* Subscription button */}
+                {/* Secondary CTA — Monthly */}
                 <motion.button
-                  whileHover={{ scale: 1.03, y: -1 }}
+                  whileHover={{ scale: 1.02, y: -1 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => handlePayClick("subscription")}
                   style={{
-                    display: "inline-flex", alignItems: "center", gap: 8,
-                    padding: "10px 22px", borderRadius: 99,
-                    background: `linear-gradient(135deg, ${C.purple}cc, #7c3aed)`,
-                    border: "none", color: "#fff",
-                    fontSize: 13, fontWeight: 700, cursor: "pointer",
-                    boxShadow: `0 0 24px ${C.purple}30`,
+                    width: "100%",
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                    padding: "11px",
+                    borderRadius: 10,
+                    background: "transparent",
+                    border: `1px solid ${C.border}`,
+                    color: C.muted,
+                    fontSize: 13, fontWeight: 500, cursor: "pointer",
+                    marginBottom: 8,
                     fontFamily: "'DM Sans', sans-serif",
+                    transition: "all 0.2s",
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.borderColor = `${C.purple}60`;
+                    e.currentTarget.style.color = C.cream;
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.borderColor = C.border;
+                    e.currentTarget.style.color = C.muted;
                   }}
                 >
-                  <Zap size={14} color="#fff" strokeWidth={2.5} />
-                  Monthly — $9.99/mo
+                  <Zap size={14} strokeWidth={2} />
+                  Go Monthly — $9.99 / mo
                 </motion.button>
 
+                {/* Skip */}
                 <button
                   onClick={onReset}
                   style={{
-                    display: "inline-flex", alignItems: "center", gap: 7,
-                    padding: "10px 20px", borderRadius: 99,
-                    background: "transparent", border: `1px solid ${C.border}`,
-                    color: C.muted, fontSize: 13, cursor: "pointer",
-                    fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s",
+                    width: "100%",
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
+                    padding: "10px",
+                    borderRadius: 10,
+                    background: "transparent", border: "none",
+                    color: `${C.muted}88`, fontSize: 12, cursor: "pointer",
+                    fontFamily: "'DM Sans', sans-serif", transition: "color 0.2s",
                   }}
-                  onMouseEnter={e => e.currentTarget.style.color = C.cream}
-                  onMouseLeave={e => e.currentTarget.style.color = C.muted}
+                  onMouseEnter={e => e.currentTarget.style.color = C.muted}
+                  onMouseLeave={e => e.currentTarget.style.color = `${C.muted}88`}
                 >
-                  <RotateCcw size={13} />
+                  <RotateCcw size={12} />
                   No thanks, upload a new photo
                 </button>
-              </div>
 
-              {/* Subscription value note */}
-              <p style={{
-                fontSize: 11, color: `${C.muted}88`,
-                marginTop: 12, paddingTop: 12,
-                borderTop: `1px solid ${C.border}`,
-              }}>
-                💡 <strong style={{ color: `${C.muted}cc` }}>Annual</strong> — save 2 months vs monthly. Or go monthly for flexibility. Cancel anytime.
-              </p>
+                {/* Secure note */}
+                <div style={{
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                  marginTop: 12, paddingTop: 12,
+                  borderTop: `1px solid ${C.border}`,
+                  fontSize: 11, color: `${C.muted}80`,
+                }}>
+                  <Info size={11} color={`${C.muted}80`} />
+                  Secured by Dodo Payments · Annual saves 2 months vs monthly
+                </div>
+
+              </div>
             </Card>
           </motion.div>
         )}
