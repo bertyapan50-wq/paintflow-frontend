@@ -116,8 +116,10 @@ const handleModalSubmit = async () => {
   setPaymentLoading(true);
   try {
     const endpoint = pendingPlanType === "subscription"
-      ? `${API_URL}/api/create-subscription`
-      : `${API_URL}/api/create-payment`;
+  ? `${API_URL}/api/create-subscription`
+  : pendingPlanType === "annual"
+  ? `${API_URL}/api/create-annual`
+  : `${API_URL}/api/create-payment`;
     const res = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
