@@ -324,7 +324,7 @@ function UploadZone({ onFileSelected, isLoading }) {
 }
 
 /* ── Completed Banner ── */
-function CompletedBanner({ title, onReset }) {
+function CompletedBanner({ title, onReset, onPlanClick }) {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
       style={{ background: C.cardBg, border: `1px solid ${C.sienna}40`, borderRadius: 20, padding: "36px 32px", textAlign: "center" }}>
@@ -337,11 +337,11 @@ function CompletedBanner({ title, onReset }) {
       </p>
       <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
       
-<button onClick={() => window.location.href = "/#pricing"}
+<button onClick={() => onPlanClick("annual")}
   style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 28px", borderRadius: 99, background: `linear-gradient(135deg, ${C.sienna}, #a05a28)`, color: "#fff", fontSize: 14, fontWeight: 600, border: "none", cursor: "pointer", boxShadow: `0 4px 24px ${C.sienna}40` }}>
   📅 Annual — $99/yr
 </button>
-<button onClick={() => window.location.href = "/#pricing"}
+<button onClick={() => onPlanClick("subscription")}
   style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 28px", borderRadius: 99, background: "transparent", border: `1px solid ${C.sienna}55`, color: C.sienna, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
   🔁 Monthly — $9.99/mo
 </button>
@@ -363,6 +363,49 @@ export default function PreviewPage() {
   const [stepImages, setStepImages]   = useState([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [loadingMsg, setLoadingMsg]   = useState("Analyzing your photo…");
+const [showEmailModal, setShowEmailModal] = useState(false);
+const [pendingPlanType, setPendingPlanType] = useState(null);
+const [emailInput, setEmailInput] = useState("");
+const [nameInput, setNameInput] = useState("");
+const [paymentLoading, setPaymentLoading] = useState(false);
+
+const handlePlanClick = (type) => {
+  setPendingPlanType(type);
+  setShowEmailModal(true);
+};
+
+const handleModalSubmit = async () => {
+  if (emailInput && !emailInput.includes("@")) {
+    alert("Please enter a valid email address.");
+    return;
+  }
+  setShowEmailModal(false);
+  setPaymentLoading(true);
+  try {
+    const endpoint = pendingPlanType === "annual"
+      ? `${API_URL}/api/create-annual`
+      : `${API_URL}/api/create-subscription`;
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customerEmail: emailInput,
+        customerName: nameInput || "PaintFlow User",
+      }),
+    });
+    const data = await res.json();
+    if (data.payment_link) {
+      window.location.href = data.payment_link;
+    } else {
+      alert("Could not create payment. Please try again.");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Payment error. Please try again.");
+  } finally {
+    setPaymentLoading(false);
+  }
+};
 
   const LOADING_MSGS = [
     "Analyzing your photo…",
@@ -471,7 +514,7 @@ export default function PreviewPage() {
               <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 12px", borderRadius: 99, border: `1px solid ${C.sienna}40`, background: `${C.sienna}12`, color: C.ochre, fontSize: 11, fontWeight: 600, letterSpacing: "0.04em" }}>
                 ✨ Free
               </span>
-              <button onClick={() => window.location.href = "/#pricing"}
+              <button onClick={() => handlePlanClick("subscription")}
   style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 14px", borderRadius: 99, background: `linear-gradient(135deg, ${C.sienna}, #a05a28)`, color: "#fff", fontSize: 11, fontWeight: 600, border: "none", cursor: "pointer", boxShadow: `0 2px 12px ${C.sienna}40` }}>
   Get Full Tutorial →
 </button>
@@ -617,12 +660,12 @@ export default function PreviewPage() {
   </div>
   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
     <button
-      onClick={() => window.location.href = "/#pricing"}
+      onClick={() => handlePlanClick("annual")}
       style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 20px", borderRadius: 99, background: `linear-gradient(135deg, ${C.sienna}, #a05a28)`, color: "#fff", fontSize: 12, fontWeight: 600, border: "none", cursor: "pointer", whiteSpace: "nowrap", boxShadow: `0 2px 12px ${C.sienna}35` }}>
       📅 Annual — $99/yr
     </button>
     <button
-      onClick={() => window.location.href = "/#pricing"}
+       onClick={() => handlePlanClick("subscription")}
       style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 20px", borderRadius: 99, background: "transparent", border: `1px solid ${C.sienna}55`, color: C.sienna, fontSize: 12, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}>
       🔁 Monthly — $9.99/mo
     </button>
@@ -634,7 +677,7 @@ export default function PreviewPage() {
             {/* ── Done ── */}
             {phase === "done" && tutorial && (
               <motion.div key="done" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <CompletedBanner title={tutorial.title} onReset={handleReset} />
+                <CompletedBanner title={tutorial.title} onReset={handleReset} onPlanClick={handlePlanClick} />
               </motion.div>
             )}
 
@@ -659,6 +702,41 @@ export default function PreviewPage() {
         </footer>
 
       </div>
+
+      {/* ══ EMAIL MODAL ══ */}
+      {showEmailModal && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
+          onClick={() => setShowEmailModal(false)}>
+          <motion.div initial={{ opacity: 0, scale: 0.92, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.3 }} onClick={e => e.stopPropagation()}
+            style={{ background: "#16100a", border: "1px solid rgba(200,121,58,0.3)", borderRadius: 20, padding: "36px 32px", width: "100%", maxWidth: 420 }}>
+            <div style={{ textAlign: "center", marginBottom: 28 }}>
+              <div style={{ width: 48, height: 48, borderRadius: 14, background: "linear-gradient(135deg, #c8793a, #8b4513)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: 22 }}>🖌️</div>
+              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 26, fontWeight: 700, color: "#f2e8d8", margin: "0 0 8px" }}>Almost there!</h2>
+              <p style={{ color: "#8a7660", fontSize: 13, lineHeight: 1.6, margin: 0 }}>Enter your email for payment confirmation and tutorial access.</p>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
+              <input type="email" placeholder="you@example.com" value={emailInput} onChange={e => setEmailInput(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleModalSubmit()} autoFocus
+                style={{ width: "100%", padding: "12px 14px", borderRadius: 10, fontSize: 14, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(200,121,58,0.25)", color: "#f2e8d8", outline: "none", boxSizing: "border-box" }} />
+              <input type="text" placeholder="Your name (optional)" value={nameInput} onChange={e => setNameInput(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleModalSubmit()}
+                style={{ width: "100%", padding: "12px 14px", borderRadius: 10, fontSize: 14, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(200,121,58,0.25)", color: "#f2e8d8", outline: "none", boxSizing: "border-box" }} />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <button onClick={handleModalSubmit} disabled={paymentLoading}
+                style={{ width: "100%", padding: "14px", borderRadius: 99, fontSize: 14, fontWeight: 600, background: "linear-gradient(135deg, #c8793a, #a05a28)", color: "#fff", border: "none", cursor: "pointer", opacity: paymentLoading ? 0.7 : 1 }}>
+                {paymentLoading ? "Redirecting..." : "Continue to Payment →"}
+              </button>
+              <button onClick={() => setShowEmailModal(false)}
+                style={{ width: "100%", padding: "12px", borderRadius: 99, fontSize: 13, background: "transparent", border: "1px solid rgba(200,121,58,0.15)", color: "#8a7660", cursor: "pointer" }}>
+                Cancel
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
     </div>
   );
 }
