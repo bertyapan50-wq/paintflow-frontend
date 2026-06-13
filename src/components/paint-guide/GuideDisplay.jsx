@@ -487,13 +487,24 @@ const handleAnnualPayment = async (email = "", name = "") => {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
 
                   {/* Annual — featured */}
-                  <div style={{
-                    border: `1px solid ${C.sienna}70`,
-                    borderRadius: 12,
-                    padding: "16px 14px",
-                    background: `${C.sienna}08`,
-                    position: "relative",
-                  }}>
+<div style={{
+  border: `1px solid ${C.sienna}70`,
+  borderRadius: 12,
+  padding: "16px 14px",
+  background: `${C.sienna}08`,
+  position: "relative",
+  overflow: "hidden",
+}}>
+  <motion.div
+    animate={{ x: ["-100%", "200%"] }}
+    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", repeatDelay: 1.5 }}
+    style={{
+      position: "absolute", top: 0, left: 0,
+      width: "50%", height: "100%",
+      background: `linear-gradient(90deg, transparent, rgba(200,121,58,0.15), transparent)`,
+      pointerEvents: "none", zIndex: 1,
+    }}
+  />
                     <div style={{
                       position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)",
                       background: C.sienna,
@@ -514,12 +525,24 @@ const handleAnnualPayment = async (email = "", name = "") => {
                   </div>
 
                   {/* Monthly */}
-                  <div style={{
-                    border: `1px solid ${C.border}`,
-                    borderRadius: 12,
-                    padding: "16px 14px",
-                    background: C.card,
-                  }}>
+<div style={{
+  border: `1px solid ${C.border}`,
+  borderRadius: 12,
+  padding: "16px 14px",
+  background: C.card,
+  position: "relative",
+  overflow: "hidden",
+}}>
+  <motion.div
+    animate={{ x: ["-100%", "200%"] }}
+    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", repeatDelay: 2 }}
+    style={{
+      position: "absolute", top: 0, left: 0,
+      width: "50%", height: "100%",
+      background: `linear-gradient(90deg, transparent, rgba(232,184,109,0.10), transparent)`,
+      pointerEvents: "none", zIndex: 1,
+    }}
+  />
                     <p style={{ fontSize: 10, color: C.muted, margin: "0 0 6px", textTransform: "uppercase", letterSpacing: "0.06em" }}>
                       Monthly
                     </p>
