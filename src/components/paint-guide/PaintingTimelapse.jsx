@@ -769,10 +769,10 @@ const startPhaseRef = useRef(null);
   const activePhases = PHASES.filter(p => cfg.phaseIds.includes(p.id));
 
   const generate = async () => {
-    if (!accessToken) {
-      setStatus("error");
-      return;
-    }
+    if (!accessToken && !import.meta.env.DEV) {
+  setStatus("error");
+  return;
+}
     setStatus("recording");
     setProgress(0);
     setVideoUrl(null);
