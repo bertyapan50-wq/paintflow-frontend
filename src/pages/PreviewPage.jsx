@@ -336,9 +336,14 @@ function CompletedBanner({ title, onReset }) {
         You just previewed <strong style={{ color: C.ochre }}>"{title}"</strong>. Want full narrated video, advanced techniques, and more detail?
       </p>
       <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-        <button onClick={async () => { const link = await createCheckoutLink(); window.location.href = link; }}
+      
+<button onClick={() => window.location.href = "/#pricing"}
   style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 28px", borderRadius: 99, background: `linear-gradient(135deg, ${C.sienna}, #a05a28)`, color: "#fff", fontSize: 14, fontWeight: 600, border: "none", cursor: "pointer", boxShadow: `0 4px 24px ${C.sienna}40` }}>
-  <Brush size={15} /> Get Full Tutorial — $2.99
+  📅 Annual — $99/yr
+</button>
+<button onClick={() => window.location.href = "/#pricing"}
+  style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 28px", borderRadius: 99, background: "transparent", border: `1px solid ${C.sienna}55`, color: C.sienna, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+  🔁 Monthly — $9.99/mo
 </button>
         <button onClick={onReset} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 24px", borderRadius: 99, background: "rgba(255,255,255,0.05)", border: `1px solid ${C.border}`, color: C.muted, fontSize: 14, cursor: "pointer" }}>
           Try Another Photo
@@ -347,19 +352,7 @@ function CompletedBanner({ title, onReset }) {
     </motion.div>
   );
 }
-async function createCheckoutLink() {
-  try {
-    const res = await fetch(`${API_URL}/api/create-payment`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ skillLevel: "advanced" }),
-    });
-    const data = await res.json();
-    return data.payment_link || "https://paintflowai.com/#pricing";  // ← FIXED
-  } catch {
-    return "https://paintflowai.com/#pricing";
-  }
-}
+
 
 /* ══ MAIN PAGE ══ */
 export default function PreviewPage() {
@@ -616,17 +609,25 @@ export default function PreviewPage() {
                 </div>
 
                 {/* Upsell nudge */}
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}
-                  style={{ marginTop: 32, padding: "18px 24px", borderRadius: 14, background: `${C.sienna}0c`, border: `1px solid ${C.sienna}25`, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-                  <div>
-                    <p style={{ fontSize: 13, color: C.ochre, fontWeight: 600, margin: "0 0 2px" }}>🎙️ Want narrated video + advanced detail?</p>
-                    <p style={{ fontSize: 12, color: C.muted, margin: 0 }}>Upgrade for full AI-narrated video tutorial, color mixing ratios & more.</p>
-                  </div>
-                  <button onClick={async () => { const link = await createCheckoutLink(); window.location.href = link; }}
-  style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 20px", borderRadius: 99, background: `linear-gradient(135deg, ${C.sienna}, #a05a28)`, color: "#fff", fontSize: 12, fontWeight: 600, border: "none", cursor: "pointer", whiteSpace: "nowrap", boxShadow: `0 2px 12px ${C.sienna}35` }}>
-  Unlock Full Tutorial — $2.99
-</button>
-                </motion.div>
+<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}
+  style={{ marginTop: 32, padding: "18px 24px", borderRadius: 14, background: `${C.sienna}0c`, border: `1px solid ${C.sienna}25`, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+  <div>
+    <p style={{ fontSize: 13, color: C.ochre, fontWeight: 600, margin: "0 0 2px" }}>🎙️ Want narrated video + advanced detail?</p>
+    <p style={{ fontSize: 12, color: C.muted, margin: 0 }}>Unlimited tutorials — choose your plan.</p>
+  </div>
+  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+    <button
+      onClick={() => window.location.href = "/#pricing"}
+      style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 20px", borderRadius: 99, background: `linear-gradient(135deg, ${C.sienna}, #a05a28)`, color: "#fff", fontSize: 12, fontWeight: 600, border: "none", cursor: "pointer", whiteSpace: "nowrap", boxShadow: `0 2px 12px ${C.sienna}35` }}>
+      📅 Annual — $99/yr
+    </button>
+    <button
+      onClick={() => window.location.href = "/#pricing"}
+      style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 20px", borderRadius: 99, background: "transparent", border: `1px solid ${C.sienna}55`, color: C.sienna, fontSize: 12, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}>
+      🔁 Monthly — $9.99/mo
+    </button>
+  </div>
+</motion.div>
               </motion.div>
             )}
 
