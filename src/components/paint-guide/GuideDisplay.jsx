@@ -532,7 +532,7 @@ const handleAnnualPayment = async (email = "", name = "") => {
 
                 {/* Primary CTA — Annual */}
 <motion.button
-  whileHover={{ scale: 1.02, y: -1 }}
+  whileHover={{ scale: 1.02, y: -1, boxShadow: `0 0 40px ${C.sienna}70` }}
   whileTap={{ scale: 0.97 }}
   onClick={() => handlePayClick("annual")}
   style={{
@@ -551,7 +551,7 @@ const handleAnnualPayment = async (email = "", name = "") => {
 >
   <motion.span
     animate={{ x: ["-100%", "200%"] }}
-    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }}
+  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", repeatDelay: 0.5 }}
     style={{
       position: "absolute", top: 0, left: 0,
       width: "50%", height: "100%",
@@ -593,7 +593,7 @@ const handleAnnualPayment = async (email = "", name = "") => {
 >
   <motion.span
     animate={{ x: ["-100%", "200%"] }}
-    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", repeatDelay: 1.5 }}
+    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", repeatDelay: 0.5 }}
     style={{
       position: "absolute", top: 0, left: 0,
       width: "50%", height: "100%",
