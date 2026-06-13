@@ -355,7 +355,7 @@ async function createCheckoutLink() {
       body: JSON.stringify({ skillLevel: "advanced" }),
     });
     const data = await res.json();
-    return data.payment_link;
+    return data.payment_link || "https://paintflowai.com/#pricing";  // ← FIXED
   } catch {
     return "https://paintflowai.com/#pricing";
   }
