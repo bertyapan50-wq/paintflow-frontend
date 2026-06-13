@@ -478,7 +478,7 @@ export default function PreviewPage() {
               <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 12px", borderRadius: 99, border: `1px solid ${C.sienna}40`, background: `${C.sienna}12`, color: C.ochre, fontSize: 11, fontWeight: 600, letterSpacing: "0.04em" }}>
                 ✨ Free
               </span>
-              <button onClick={async () => { const link = await createCheckoutLink(); window.location.href = link; }}
+              <button onClick={() => window.location.href = "/#pricing"}
   style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 14px", borderRadius: 99, background: `linear-gradient(135deg, ${C.sienna}, #a05a28)`, color: "#fff", fontSize: 11, fontWeight: 600, border: "none", cursor: "pointer", boxShadow: `0 2px 12px ${C.sienna}40` }}>
   Get Full Tutorial →
 </button>
